@@ -1,0 +1,1416 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Epigenetic Inheritance — AI × Biology Hack Challenge</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<style>
+:root{
+  --bg:#070a1a;--bg-r:#0d1228;--bg-card:#111832;--bg-card2:#161e3a;
+  --border:#1c2d55;--border-hi:#2a4080;
+  --accent:#2dd4bf;--accent-d:#1a8a7a;--accent-x:#0a3530;
+  --purple:#818cf8;--purple-d:#4c52a8;
+  --danger:#f87171;--success:#4ade80;--warn:#fbbf24;
+  --text:#e8edf8;--muted:#7889b0;--dim:#2d3a5a;
+  --r-sm:6px;--r-md:12px;--r-lg:18px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);
+  font-family:'Segoe UI',system-ui,sans-serif;font-size:16px;line-height:1.65;overflow-x:hidden}
+::-webkit-scrollbar{width:5px}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+#particles{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden}
+#particles span{position:absolute;border-radius:50%;opacity:0;
+  animation:float-p var(--d,9s) var(--dl,0s) infinite ease-in-out}
+@keyframes float-p{0%{opacity:0;transform:translateY(0) scale(1)}
+  15%{opacity:.25}85%{opacity:.07}100%{opacity:0;transform:translateY(-110vh) scale(.3)}}
+/* LANDING */
+#landing{position:fixed;inset:0;z-index:300;background:var(--bg);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  text-align:center;padding:24px 32px;transition:opacity .7s ease,transform .7s ease}
+#landing.exit{opacity:0;transform:scale(1.05);pointer-events:none}
+.land-badge{display:inline-block;margin-bottom:22px;
+  background:rgba(45,212,191,.1);border:1px solid rgba(45,212,191,.28);
+  color:var(--accent);font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;
+  padding:5px 18px;border-radius:20px;animation:pring 2.5s ease-in-out infinite}
+@keyframes pring{0%,100%{box-shadow:0 0 0 0 rgba(45,212,191,0)}50%{box-shadow:0 0 0 8px rgba(45,212,191,.07)}}
+.land-h1{font-size:clamp(26px,5.5vw,54px);font-weight:900;line-height:1.12;margin-bottom:18px;
+  background:linear-gradient(135deg,#c7d4f4 20%,var(--accent) 58%,var(--purple));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  background-size:200% 200%;animation:shimmer 5s linear infinite}
+@keyframes shimmer{0%{background-position:0 50%}50%{background-position:100% 50%}100%{background-position:0 50%}}
+.land-sub{font-size:16px;color:var(--muted);max-width:560px;margin:0 auto 28px;line-height:1.75}
+.land-sub b{color:var(--text)}
+.land-tags{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-bottom:32px}
+.land-tag{padding:5px 14px;border-radius:20px;font-size:12px;font-weight:600;
+  background:var(--bg-card);border:1px solid var(--border);color:var(--muted)}
+.enter-btn{padding:14px 44px;border-radius:var(--r-md);border:none;cursor:pointer;
+  font-size:16px;font-weight:800;letter-spacing:.04em;
+  background:linear-gradient(135deg,var(--accent-d),var(--accent));
+  color:#07091a;position:relative;overflow:hidden;
+  transition:transform .15s,box-shadow .15s;animation:bglow 2.4s ease-in-out infinite}
+.enter-btn:hover{transform:scale(1.05);box-shadow:0 0 32px rgba(45,212,191,.4)}
+.enter-btn::after{content:'';position:absolute;top:0;left:-100%;width:55%;height:100%;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.22),transparent);
+  animation:sweep 2.4s ease-in-out infinite}
+@keyframes bglow{0%,100%{box-shadow:0 0 0 0 rgba(45,212,191,0)}50%{box-shadow:0 0 22px rgba(45,212,191,.32)}}
+@keyframes sweep{to{left:160%}}
+/* APP SHELL */
+#app{opacity:0;pointer-events:none;transition:opacity .6s .2s ease;position:relative;z-index:1}
+#app.visible{opacity:1;pointer-events:auto}
+header{position:sticky;top:0;z-index:200;height:54px;
+  background:rgba(7,10,26,.93);backdrop-filter:blur(14px);
+  border-bottom:1px solid var(--border);
+  display:flex;align-items:center;padding:0 28px;gap:20px}
+.logo{font-size:13px;font-weight:800;color:var(--accent);white-space:nowrap}
+.logo em{color:var(--muted);font-style:normal;font-weight:400}
+.tab-nav{display:flex;gap:4px;margin-left:auto}
+.tab-btn{padding:7px 22px;border-radius:var(--r-sm);border:none;cursor:pointer;
+  font-size:13px;font-weight:700;letter-spacing:.02em;
+  background:transparent;color:var(--muted);transition:background .18s,color .18s}
+.tab-btn:hover{background:var(--bg-card);color:var(--text)}
+.tab-btn.active{background:var(--accent);color:#07091a}
+.tab-pane{display:none}.tab-pane.active{display:block}
+/* TAB1 STYLES */
+.section{max-width:920px;margin:0 auto;padding:64px 32px}
+.eyebrow{display:inline-block;margin-bottom:12px;
+  background:rgba(45,212,191,.1);border:1px solid rgba(45,212,191,.22);
+  color:var(--accent);font-size:10px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;
+  padding:4px 14px;border-radius:20px}
+.eyebrow.p{background:rgba(129,140,248,.1);border-color:rgba(129,140,248,.22);color:var(--purple)}
+h2.sec-title{font-size:clamp(20px,3.2vw,30px);font-weight:800;line-height:1.2;margin-bottom:10px}
+p.sec-lead{color:var(--muted);font-size:15.5px;max-width:640px;margin-bottom:32px}
+.divider{border:none;border-top:1px solid var(--border);margin:0}
+.reveal{opacity:0;transform:translateY(28px);transition:opacity .6s ease,transform .6s ease}
+.reveal.in{opacity:1;transform:translateY(0)}
+.cn{font-size:12px;color:var(--muted);font-style:normal;margin-left:5px}
+/* CASE FILE */
+.story-grid{display:grid;grid-template-columns:1fr 1fr;gap:32px;align-items:start}
+@media(max-width:680px){.story-grid{grid-template-columns:1fr}}
+.case-file{background:var(--bg-card);border:1px solid var(--border-hi);border-radius:var(--r-lg);
+  padding:28px;position:relative;overflow:hidden}
+.case-file::before{content:'CLASSIFIED — DUTCH HUNGER WINTER 1944';position:absolute;top:10px;right:12px;
+  font-size:9px;font-weight:700;letter-spacing:.1em;color:var(--danger);opacity:.6}
+.case-file::after{content:'';position:absolute;top:0;left:0;width:4px;height:100%;
+  background:linear-gradient(to bottom,var(--danger),var(--warn))}
+.case-tag{display:inline-block;padding:2px 8px;border-radius:4px;font-size:10px;font-weight:700;
+  background:rgba(248,113,113,.15);color:var(--danger);border:1px solid rgba(248,113,113,.3);margin-bottom:12px}
+.case-file h3{font-size:17px;font-weight:800;margin-bottom:16px;color:var(--text)}
+.fact-row{display:flex;gap:12px;align-items:flex-start;margin-bottom:12px;padding-bottom:12px;
+  border-bottom:1px solid var(--dim)}
+.fact-row:last-of-type{border-bottom:none;margin-bottom:0;padding-bottom:0}
+.fact-num{font-size:22px;font-weight:900;color:var(--danger);line-height:1;min-width:50px}
+.fact-text{font-size:14px;color:var(--muted);line-height:1.5}
+.fact-text b{color:var(--text)}
+.hook-box{background:rgba(45,212,191,.05);border:1px solid rgba(45,212,191,.2);
+  border-radius:var(--r-md);padding:18px;margin-top:20px}
+.hook-box p{font-size:14px;color:var(--accent);line-height:1.6;font-style:italic}
+/* CONCEPT CARDS */
+.concept-grid{display:grid;grid-template-columns:1fr 1fr;gap:28px;margin-top:12px}
+@media(max-width:680px){.concept-grid{grid-template-columns:1fr}}
+.concept-card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--r-lg);
+  padding:28px;transition:border-color .2s,box-shadow .2s}
+.concept-card:hover{border-color:var(--border-hi);box-shadow:0 0 28px rgba(45,212,191,.1)}
+.concept-card h3{font-size:16px;font-weight:700;margin-bottom:14px}
+.concept-card p{font-size:14px;color:var(--muted);line-height:1.65}
+.analogy-box{background:rgba(45,212,191,.06);border-left:3px solid var(--accent);
+  border-radius:0 var(--r-sm) var(--r-sm) 0;padding:12px 16px;margin-top:14px;font-size:14px;color:var(--text)}
+/* COMPARE TABLE */
+.compare-table{width:100%;border-collapse:collapse;margin-top:16px;font-size:14px}
+.compare-table th{padding:10px 14px;text-align:left;font-size:11px;font-weight:700;
+  letter-spacing:.08em;text-transform:uppercase;color:var(--muted);
+  border-bottom:1px solid var(--border)}
+.compare-table td{padding:10px 14px;border-bottom:1px solid var(--dim);vertical-align:top}
+.compare-table tr:last-child td{border-bottom:none}
+.compare-table .col-mendel{color:var(--warn)}
+.compare-table .col-epi{color:var(--accent)}
+/* FRAGMENT CARDS */
+.frag-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-top:28px}
+@media(max-width:720px){.frag-grid{grid-template-columns:1fr}}
+.frag-card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--r-lg);
+  padding:24px;position:relative;overflow:hidden;transition:all .25s;cursor:default}
+.frag-card:hover{transform:translateY(-4px);border-color:var(--border-hi);
+  box-shadow:0 12px 40px rgba(0,0,0,.4)}
+.frag-card.frag-a:hover{border-color:var(--danger)}
+.frag-card.frag-b:hover{border-color:var(--warn)}
+.frag-card.frag-c:hover{border-color:var(--success)}
+.frag-badge{display:inline-block;padding:3px 10px;border-radius:5px;
+  font-size:11px;font-weight:800;letter-spacing:.06em;margin-bottom:12px}
+.frag-a .frag-badge{background:rgba(248,113,113,.15);color:var(--danger);border:1px solid rgba(248,113,113,.3)}
+.frag-b .frag-badge{background:rgba(251,191,36,.12);color:var(--warn);border:1px solid rgba(251,191,36,.3)}
+.frag-c .frag-badge{background:rgba(74,222,128,.12);color:var(--success);border:1px solid rgba(74,222,128,.3)}
+.frag-card h4{font-size:14px;font-weight:700;margin-bottom:8px}
+.frag-card p{font-size:13px;color:var(--muted);line-height:1.55;margin-bottom:12px}
+.frag-tip{background:var(--bg-card2);border-radius:var(--r-sm);padding:10px 12px;
+  font-size:12px;color:var(--text);border-left:3px solid var(--border-hi)}
+.frag-a .frag-tip{border-color:var(--danger)}
+.frag-b .frag-tip{border-color:var(--warn)}
+.frag-c .frag-tip{border-color:var(--success)}
+.bridge-box{margin-top:40px;text-align:center;padding:28px;
+  background:linear-gradient(135deg,rgba(45,212,191,.06),rgba(129,140,248,.06));
+  border:1px solid var(--border-hi);border-radius:var(--r-lg)}
+.bridge-box p{font-size:16px;color:var(--text);margin-bottom:14px}
+.bridge-btn{display:inline-block;padding:10px 32px;background:var(--accent);
+  color:#07091a;font-weight:800;font-size:14px;border-radius:var(--r-sm);
+  cursor:pointer;border:none;transition:transform .15s,box-shadow .15s}
+.bridge-btn:hover{transform:scale(1.04);box-shadow:0 0 20px rgba(45,212,191,.3)}
+/* TAB2 LAYOUT */
+#tab2{display:none}
+#tab2.active{display:flex;flex-direction:column}
+.lab-wrap{display:flex;height:calc(100vh - 54px);min-height:600px}
+.lab-canvas-col{flex:1;min-width:0;position:relative;background:var(--bg-r)}
+#three-canvas{width:100%;height:100%;display:block}
+.act-overlay{position:absolute;bottom:20px;left:50%;transform:translateX(-50%);
+  background:rgba(7,10,26,.88);backdrop-filter:blur(8px);
+  border:1px solid var(--border);border-radius:var(--r-md);
+  padding:12px 22px;text-align:center;min-width:240px;
+  opacity:0;transition:opacity .4s}
+.act-overlay.show{opacity:1}
+.act-overlay .act-label{font-size:10px;font-weight:700;letter-spacing:.12em;
+  text-transform:uppercase;color:var(--muted);margin-bottom:4px}
+.act-overlay .act-desc{font-size:14px;color:var(--text)}
+.result-pct{position:absolute;top:24px;left:50%;transform:translateX(-50%);
+  font-size:52px;font-weight:900;opacity:0;transition:opacity .5s;
+  background:linear-gradient(135deg,var(--accent),var(--purple));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;text-align:center}
+.result-pct.show{opacity:1}
+.result-pct small{display:block;font-size:13px;color:var(--muted);
+  -webkit-text-fill-color:var(--muted);margin-top:-4px}
+/* CONTROL PANEL */
+.lab-ctrl-col{width:320px;flex-shrink:0;background:var(--bg-card);
+  border-left:1px solid var(--border);overflow-y:auto;padding:24px 20px;
+  display:flex;flex-direction:column;gap:20px}
+.ctrl-title{font-size:15px;font-weight:800;color:var(--text);margin-bottom:4px}
+.ctrl-step{font-size:10px;font-weight:700;letter-spacing:.1em;
+  text-transform:uppercase;color:var(--muted);margin-bottom:10px}
+.chips{display:flex;flex-direction:column;gap:8px}
+.chip{padding:9px 14px;border-radius:var(--r-sm);border:1px solid var(--border);
+  font-size:13px;font-weight:600;color:var(--muted);cursor:pointer;
+  background:var(--bg-card2);transition:all .18s;line-height:1.4}
+.chip .chip-cn{display:block;font-size:11px;color:var(--dim);font-weight:400}
+.chip:hover{border-color:var(--border-hi);color:var(--text)}
+.chip.sel{border-color:var(--accent);color:var(--accent);
+  background:rgba(45,212,191,.07);box-shadow:0 0 12px rgba(45,212,191,.1)}
+.ctrl-divider{border:none;border-top:1px solid var(--border)}
+.range-wrap input[type=range]{width:100%;-webkit-appearance:none;height:4px;
+  background:var(--dim);border-radius:2px;outline:none;cursor:pointer;margin:8px 0 4px}
+.range-wrap input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;
+  width:18px;height:18px;background:var(--accent);border-radius:50%;cursor:pointer;
+  box-shadow:0 0 8px rgba(45,212,191,.5);transition:box-shadow .2s}
+.range-wrap input[type=range]:hover::-webkit-slider-thumb{box-shadow:0 0 14px rgba(45,212,191,.7)}
+.range-labels{display:flex;justify-content:space-between;font-size:10px;color:var(--dim);margin-top:2px}
+.frag-chips{display:flex;flex-direction:column;gap:8px}
+.frag-chip{padding:10px 14px;border-radius:var(--r-sm);border:1px solid var(--border);
+  font-size:12px;font-weight:600;color:var(--muted);cursor:pointer;
+  background:var(--bg-card2);transition:all .18s}
+.frag-chip .fc-head{font-size:13px;font-weight:700;color:var(--text);display:flex;
+  align-items:center;gap:8px;margin-bottom:3px}
+.frag-chip .fc-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.frag-chip.sel-a{border-color:var(--danger);box-shadow:0 0 10px rgba(248,113,113,.1)}
+.frag-chip.sel-b{border-color:var(--warn);box-shadow:0 0 10px rgba(251,191,36,.1)}
+.frag-chip.sel-c{border-color:var(--success);box-shadow:0 0 10px rgba(74,222,128,.1)}
+.run-btn{padding:14px;border-radius:var(--r-md);border:none;cursor:pointer;
+  font-size:15px;font-weight:800;letter-spacing:.04em;
+  background:linear-gradient(135deg,var(--accent-d),var(--accent));
+  color:#07091a;position:relative;overflow:hidden;
+  transition:transform .15s;animation:bglow 2.4s ease-in-out infinite}
+.run-btn:hover{transform:scale(1.03)}
+.run-btn:disabled{opacity:.5;pointer-events:none}
+.run-btn::after{content:'';position:absolute;top:0;left:-100%;width:55%;height:100%;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.22),transparent);
+  animation:sweep 2.4s ease-in-out infinite}
+.reset-btn{padding:10px;border-radius:var(--r-sm);border:1px solid var(--border);
+  background:transparent;color:var(--muted);font-size:13px;font-weight:600;cursor:pointer;
+  transition:all .18s}
+.reset-btn:hover{border-color:var(--border-hi);color:var(--text)}
+.status-text{font-size:12px;color:var(--muted);text-align:center;line-height:1.5}
+/* RESULTS TABLE */
+.results-section{max-width:920px;margin:0 auto;padding:32px}
+.results-section h3{font-size:16px;font-weight:700;margin-bottom:16px;color:var(--text)}
+.result-table-wrap{overflow-x:auto}
+.result-table{width:100%;border-collapse:collapse;font-size:13px}
+.result-table th{padding:9px 14px;text-align:left;font-size:10px;font-weight:700;
+  letter-spacing:.08em;text-transform:uppercase;color:var(--muted);
+  border-bottom:1px solid var(--border);white-space:nowrap}
+.result-table td{padding:9px 14px;border-bottom:1px solid var(--dim);vertical-align:middle}
+.result-table tr:last-child td{border-bottom:none}
+.risk-badge{display:inline-block;padding:3px 10px;border-radius:5px;
+  font-size:10px;font-weight:700;letter-spacing:.06em;white-space:nowrap}
+.risk-vh{background:rgba(248,113,113,.15);color:var(--danger);border:1px solid rgba(248,113,113,.25)}
+.risk-h{background:rgba(251,191,36,.12);color:var(--warn);border:1px solid rgba(251,191,36,.25)}
+.risk-m{background:rgba(45,212,191,.1);color:var(--accent);border:1px solid rgba(45,212,191,.2)}
+.risk-l{background:rgba(74,222,128,.1);color:var(--success);border:1px solid rgba(74,222,128,.2)}
+.empty-state{text-align:center;padding:32px;color:var(--dim);font-size:14px}
+/* ── MECHANISM SECTION ── */
+.mech-pathway{margin-top:8px}
+.pathway-intro{background:var(--bg-card2);border:1px solid var(--border);border-radius:var(--r-lg);
+  padding:22px 26px;margin-bottom:28px;font-size:15px;color:var(--muted);line-height:1.7}
+.pathway-intro strong{color:var(--text)}
+.mech-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+@media(max-width:800px){.mech-grid{grid-template-columns:1fr}}
+.mech-card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--r-lg);
+  padding:22px;display:flex;flex-direction:column;gap:14px;
+  transition:border-color .2s,box-shadow .2s}
+.mech-card.stress{border-top:3px solid var(--danger)}
+.mech-card.nutrition{border-top:3px solid var(--warn)}
+.mech-card.toxin{border-top:3px solid var(--purple)}
+.mech-card:hover{box-shadow:0 0 24px rgba(45,212,191,.1);border-color:var(--border-hi)}
+.mech-card-header{display:flex;align-items:flex-start;gap:14px}
+.mech-icon{font-size:28px;line-height:1;flex-shrink:0;margin-top:2px}
+.mech-env{font-size:15px;font-weight:700;color:var(--text);margin-bottom:3px}
+.mech-enzyme{font-size:11px;color:var(--muted);font-family:monospace;
+  background:var(--bg-r);padding:2px 8px;border-radius:4px;display:inline-block}
+.mech-steps{list-style:none;display:flex;flex-direction:column;gap:10px;flex:1}
+.mech-steps li{display:flex;gap:10px;font-size:13.5px;color:var(--muted);line-height:1.55}
+.mech-steps li strong{color:var(--text)}
+.step-num{flex-shrink:0;width:22px;height:22px;border-radius:50%;
+  background:var(--dim);color:var(--muted);
+  font-size:11px;font-weight:800;display:flex;align-items:center;justify-content:center;margin-top:1px}
+.mech-card.stress   .step-num{background:rgba(248,113,113,.18);color:var(--danger)}
+.mech-card.nutrition .step-num{background:rgba(251,191,36,.18);color:var(--warn)}
+.mech-card.toxin    .step-num{background:rgba(129,140,248,.18);color:var(--purple)}
+.mech-result{font-size:12.5px;line-height:1.55;padding:10px 14px;border-radius:var(--r-sm);font-style:italic}
+.stress-r{background:rgba(248,113,113,.08);border-left:3px solid var(--danger);color:#fca5a5}
+.nutrition-r{background:rgba(251,191,36,.08);border-left:3px solid var(--warn);color:#fde68a}
+.toxin-r{background:rgba(129,140,248,.08);border-left:3px solid var(--purple);color:#c7d2fe}
+/* CHAIN BOX */
+.chain-box{margin-top:28px;background:var(--bg-card);border:1px solid var(--border-hi);
+  border-radius:var(--r-lg);padding:26px 32px}
+.chain-title{font-size:14px;font-weight:700;color:var(--accent);margin-bottom:18px;letter-spacing:.04em}
+.chain-steps{display:flex;flex-direction:column;align-items:flex-start;gap:0}
+.chain-step{background:var(--bg-card2);border:1px solid var(--border);
+  border-radius:var(--r-sm);padding:9px 18px;
+  font-size:13.5px;color:var(--text);min-width:320px}
+.chain-step.last{border-color:var(--accent);color:var(--accent);
+  background:rgba(45,212,191,.06);font-weight:700}
+.chain-arrow{font-size:18px;color:var(--dim);padding:2px 20px;line-height:1.4}
+</style>
+</head>
+<body>
+<div id="particles"></div>
+
+<!-- LANDING -->
+<div id="landing">
+  <div class="land-badge">🧬 AI × Biology Hack Challenge &nbsp;·&nbsp; Track 1: Genes &amp; Heredity</div>
+  <h1 class="land-h1">Why Do Grandma's Scars<br/>Echo in Your Cells?</h1>
+  <p class="land-sub">
+    In the winter of 1944, <b>Nazi forces cut off food to the Netherlands</b>.<br/>
+    The survivors' children — and <i>their</i> children — carried biological echoes of that famine.<br/>
+    The DNA sequence never changed. Something else did.
+  </p>
+  <div class="land-tags">
+    <span class="land-tag">🔬 Epigenetics <span class="cn">表观遗传</span></span>
+    <span class="land-tag">🏷️ Methyl Tags <span class="cn">甲基标签</span></span>
+    <span class="land-tag">🧬 Transgenerational <span class="cn">跨代遗传</span></span>
+  </div>
+  <button class="enter-btn" onclick="enterLab()">Enter the Lab →</button>
+</div>
+
+<!-- APP SHELL -->
+<div id="app">
+  <header>
+    <div class="logo">Epigenetic Lab <em>· AI × Biology Hack Challenge</em></div>
+    <nav class="tab-nav">
+      <button class="tab-btn active" onclick="showTab('tab1',this)">Tab 1 — Science</button>
+      <button class="tab-btn" onclick="showTab('tab2',this)">Tab 2 — Experiment</button>
+    </nav>
+  </header>
+
+  <!-- ══════════════════ TAB 1 ══════════════════ -->
+  <div id="tab1" class="tab-pane active">
+
+    <!-- S1: DUTCH HUNGER WINTER -->
+    <div class="section reveal">
+      <div class="eyebrow">🕵️ Opening Case — The Dutch Hunger Winter</div>
+      <h2 class="sec-title">A Famine That Echoed Across Generations</h2>
+      <p class="sec-lead">September 1944 — May 1945. Nazi forces blocked food supply lines to the Netherlands.
+        What happened next changed how scientists think about heredity forever.</p>
+      <div class="story-grid">
+        <div class="case-file">
+          <span class="case-tag">CASE FILE — DECLASSIFIED</span>
+          <h3>Operation Hunger Winter<br/><span style="font-size:13px;color:var(--muted);font-weight:400">荷兰大饥荒 — Netherlands, 1944–45</span></h3>
+          <div class="fact-row">
+            <div class="fact-num">~22K</div>
+            <div class="fact-text"><b>Deaths from starvation</b><br/>Calorie intake dropped to under 500 kcal/day — less than a quarter of normal.</div>
+          </div>
+          <div class="fact-row">
+            <div class="fact-num">F1</div>
+            <div class="fact-text"><b>Children born during the famine</b> had higher rates of obesity, diabetes, and heart disease — decades later, even when they ate normally their whole lives.</div>
+          </div>
+          <div class="fact-row">
+            <div class="fact-num">F2</div>
+            <div class="fact-text"><b>Their children</b> (the grandchildren of starving mothers) also showed elevated metabolic risk — despite never experiencing famine themselves.</div>
+          </div>
+          <div class="hook-box">
+            <p>"This wasn't genetics. The DNA sequence never changed.<br/>
+            Something else was happening — invisible tags<span class="cn">（隐形标记）</span> were being written onto the genome."</p>
+          </div>
+        </div>
+        <div>
+          <svg viewBox="0 0 320 340" xmlns="http://www.w3.org/2000/svg" style="width:100%;max-width:340px">
+            <rect width="320" height="340" fill="#0d1228" rx="14"/>
+            <!-- Generation diagram -->
+            <text x="160" y="28" text-anchor="middle" font-size="11" fill="#7889b0" font-family="sans-serif">TRANSGENERATIONAL EFFECT</text>
+            <!-- Mother -->
+            <circle cx="80" cy="80" r="28" fill="#1c2d55" stroke="#f87171" stroke-width="2"/>
+            <text x="80" y="76" text-anchor="middle" font-size="18" fill="#e8edf8">👩</text>
+            <text x="80" y="96" text-anchor="middle" font-size="9" fill="#f87171" font-weight="700">MOTHER</text>
+            <text x="80" y="108" text-anchor="middle" font-size="8" fill="#7889b0">starvation</text>
+            <!-- Arrow M → F1 -->
+            <path d="M80 112 L80 145" stroke="#2d3a5a" stroke-width="1.5" stroke-dasharray="4 3"/>
+            <polygon points="80,150 76,142 84,142" fill="#2d3a5a"/>
+            <!-- F1 -->
+            <circle cx="80" cy="178" r="28" fill="#1c2d55" stroke="#fbbf24" stroke-width="2"/>
+            <text x="80" y="174" text-anchor="middle" font-size="18" fill="#e8edf8">👶</text>
+            <text x="80" y="194" text-anchor="middle" font-size="9" fill="#fbbf24" font-weight="700">F1 CHILD</text>
+            <text x="80" y="206" text-anchor="middle" font-size="8" fill="#7889b0">metabolic risk ↑</text>
+            <!-- Arrow F1 → F2 -->
+            <path d="M80 210 L80 245" stroke="#2d3a5a" stroke-width="1.5" stroke-dasharray="4 3"/>
+            <polygon points="80,250 76,242 84,242" fill="#2d3a5a"/>
+            <!-- F2 -->
+            <circle cx="80" cy="278" r="28" fill="#1c2d55" stroke="#818cf8" stroke-width="2"/>
+            <text x="80" y="274" text-anchor="middle" font-size="18" fill="#e8edf8">🧒</text>
+            <text x="80" y="294" text-anchor="middle" font-size="9" fill="#818cf8" font-weight="700">F2 GRANDCHILD</text>
+            <text x="80" y="306" text-anchor="middle" font-size="8" fill="#7889b0">still shows effects</text>
+            <!-- Right panel: Methyl tags explanation -->
+            <rect x="140" y="50" width="162" height="50" rx="8" fill="#111832" stroke="#1c2d55"/>
+            <text x="221" y="70" text-anchor="middle" font-size="11" fill="#2dd4bf" font-weight="700">SAME DNA SEQUENCE</text>
+            <text x="221" y="86" text-anchor="middle" font-size="10" fill="#7889b0">but methyl tags changed</text>
+            <!-- DNA with tags schematic -->
+            <path d="M148 160 Q200 140 260 160 Q200 180 148 160" fill="none" stroke="#2dd4bf" stroke-width="2"/>
+            <path d="M148 175 Q200 195 260 175 Q200 155 148 175" fill="none" stroke="#818cf8" stroke-width="2"/>
+            <circle cx="165" cy="155" r="5" fill="#f87171"/>
+            <circle cx="190" cy="148" r="5" fill="#f87171"/>
+            <circle cx="220" cy="150" r="5" fill="#f87171"/>
+            <text x="165" y="143" text-anchor="middle" font-size="8" fill="#f87171">CH₃</text>
+            <text x="190" y="136" text-anchor="middle" font-size="8" fill="#f87171">CH₃</text>
+            <text x="220" y="138" text-anchor="middle" font-size="8" fill="#f87171">CH₃</text>
+            <text x="204" y="210" text-anchor="middle" font-size="10" fill="#7889b0">Methyl tags on DNA</text>
+            <text x="204" y="224" text-anchor="middle" font-size="9" fill="#2d3a5a">甲基标签 attached to cytosine</text>
+            <!-- Erasure -->
+            <rect x="148" y="248" width="112" height="38" rx="7" fill="#0a3530" stroke="#1a8a7a"/>
+            <text x="204" y="264" text-anchor="middle" font-size="10" fill="#2dd4bf" font-weight="700">Erasure Incomplete</text>
+            <text x="204" y="278" text-anchor="middle" font-size="9" fill="#7889b0">some tags survive reset</text>
+            <!-- Connector lines -->
+            <line x1="80" y1="80" x2="140" y2="75" stroke="#1c2d55" stroke-width="1" stroke-dasharray="3 3"/>
+            <line x1="80" y1="178" x2="140" y2="160" stroke="#1c2d55" stroke-width="1" stroke-dasharray="3 3"/>
+            <line x1="80" y1="278" x2="148" y2="267" stroke="#1c2d55" stroke-width="1" stroke-dasharray="3 3"/>
+          </svg>
+        </div>
+      </div>
+      <div style="margin-top:32px;padding:20px 24px;background:var(--bg-card);border-radius:var(--r-md);
+           border-left:3px solid var(--accent)">
+        <p style="font-size:15px">The answer lies in tiny chemical tags called <b>methyl groups</b>
+        <span class="cn">（甲基，CH₃）</span>.
+        They don't rewrite the DNA — they tell the cell whether to <em>read</em> a gene or <em>ignore</em> it.
+        And under extreme environmental pressure, these tags can be written, and sometimes survive the reset
+        between generations. That's <b>epigenetic transgenerational inheritance</b>
+        <span class="cn">（表观遗传跨代遗传）</span>.</p>
+      </div>
+    </div>
+    <hr class="divider"/>
+
+    <!-- S2: CORE CONCEPTS -->
+    <div class="section reveal" style="transition-delay:.1s">
+      <div class="eyebrow p">📖 Core Concepts — 核心概念</div>
+      <h2 class="sec-title">The Science Behind the Tags</h2>
+      <p class="sec-lead">Two ideas you need before you run the experiment.</p>
+      <div class="concept-grid">
+        <!-- Concept A -->
+        <div class="concept-card">
+          <h3>🏷️ What is a Methyl Tag?<span class="cn">（甲基标签）</span></h3>
+          <svg viewBox="0 0 280 100" style="width:100%;margin:8px 0 14px" xmlns="http://www.w3.org/2000/svg">
+            <rect width="280" height="100" fill="#0d1228" rx="8"/>
+            <!-- DNA backbone -->
+            <path d="M10,50 C40,30 60,70 90,50 S140,30 170,50 S220,70 250,50 S270,40 278,46"
+                  fill="none" stroke="#2dd4bf" stroke-width="2.5" stroke-dasharray="5 3">
+              <animate attributeName="stroke-dashoffset" from="0" to="-32" dur="2.5s" repeatCount="indefinite"/>
+            </path>
+            <path d="M10,52 C40,72 60,32 90,52 S140,72 170,52 S220,32 250,52 S270,62 278,56"
+                  fill="none" stroke="#818cf8" stroke-width="2.5" stroke-dasharray="5 3">
+              <animate attributeName="stroke-dashoffset" from="0" to="32" dur="2.5s" repeatCount="indefinite"/>
+            </path>
+            <!-- base pairs -->
+            <line x1="45" y1="38" x2="45" y2="62" stroke="#2d3a5a" stroke-width="1.2"/>
+            <line x1="90" y1="50" x2="90" y2="52" stroke="#2d3a5a" stroke-width="1.2"/>
+            <line x1="130" y1="38" x2="130" y2="62" stroke="#2d3a5a" stroke-width="1.2"/>
+            <line x1="170" y1="50" x2="170" y2="52" stroke="#2d3a5a" stroke-width="1.2"/>
+            <line x1="215" y1="62" x2="215" y2="38" stroke="#2d3a5a" stroke-width="1.2"/>
+            <!-- existing methyls -->
+            <circle cx="45" cy="28" r="6" fill="#2dd4bf"/>
+            <text x="45" y="18" text-anchor="middle" font-size="7" fill="#2dd4bf">CH₃</text>
+            <!-- new methyl dropping -->
+            <circle cx="130" cy="28" r="6" fill="#f87171">
+              <animate attributeName="cy" values="14;28;28;14" dur="2.8s" repeatCount="indefinite"/>
+              <animate attributeName="opacity" values="0;1;1;0" dur="2.8s" repeatCount="indefinite"/>
+            </circle>
+            <text x="130" y="12" text-anchor="middle" font-size="7" fill="#f87171">
+              NEW
+              <animate attributeName="y" values="10;24;24;10" dur="2.8s" repeatCount="indefinite"/>
+              <animate attributeName="opacity" values="0;1;1;0" dur="2.8s" repeatCount="indefinite"/>
+            </text>
+            <circle cx="215" cy="28" r="6" fill="#2dd4bf"/>
+            <text x="215" y="18" text-anchor="middle" font-size="7" fill="#2dd4bf">CH₃</text>
+            <!-- labels -->
+            <text x="140" y="92" text-anchor="middle" font-size="9" fill="#7889b0">Methyl groups attach to cytosine bases in CpG sites</text>
+          </svg>
+          <p>A methyl tag is a tiny chemical group (CH₃) that attaches to a specific spot on DNA — usually a cytosine
+            <span class="cn">（胞嘧啶）</span> next to a guanine, called a CpG site. It doesn't break or rewrite the DNA.
+            Instead, it recruits proteins that <strong>silence</strong> that gene — like putting a lock on a door.</p>
+          <div class="analogy-box">
+            🏷️ Think of DNA as a recipe book. A methyl tag is a sticky note that says
+            <em>"skip this page."</em> The recipe is still there — it just won't be cooked.
+          </div>
+        </div>
+        <!-- Concept B -->
+        <div class="concept-card">
+          <h3>🔀 Epigenetics vs. Mendelian Genetics<span class="cn">（表观遗传 vs 孟德尔遗传）</span></h3>
+          <table class="compare-table">
+            <thead>
+              <tr>
+                <th>Feature</th>
+                <th class="col-mendel">🟡 Mendel</th>
+                <th class="col-epi">🩵 Epigenetics</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>DNA sequence?</td>
+                <td class="col-mendel">Changed<span class="cn">（改变序列）</span></td>
+                <td class="col-epi">Same<span class="cn">（序列不变）</span></td>
+              </tr>
+              <tr>
+                <td>Reversible?</td>
+                <td class="col-mendel">No — permanent</td>
+                <td class="col-epi">Yes — can be erased</td>
+              </tr>
+              <tr>
+                <td>Cause?</td>
+                <td class="col-mendel">Random mutation or recombination</td>
+                <td class="col-epi">Environment triggers<span class="cn">（环境触发）</span></td>
+              </tr>
+              <tr>
+                <td>Inheritance?</td>
+                <td class="col-mendel">Always inherited (dominant/recessive)</td>
+                <td class="col-epi">Partial — depends on erasure</td>
+              </tr>
+              <tr>
+                <td>Speed?</td>
+                <td class="col-mendel">Generations to accumulate</td>
+                <td class="col-epi">Within one lifetime</td>
+              </tr>
+            </tbody>
+          </table>
+          <div class="analogy-box" style="margin-top:14px;border-color:var(--purple)">
+            🧬 Mendel changes the <em>hardware</em>. Epigenetics changes the <em>software settings</em> —
+            same computer, different behavior.
+          </div>
+        </div>
+      </div>
+    </div>
+    <hr class="divider"/>
+
+    <!-- S2b: WHY EXTREME ENVIRONMENTS TRIGGER METHYLATION -->
+    <div class="section reveal" style="transition-delay:.1s">
+      <div class="eyebrow p">🔬 Mechanism Deep-Dive — 机制拆解</div>
+      <h2 class="sec-title">Why Do Extreme Environments Tell Cells to Start Tagging?</h2>
+      <p class="sec-lead">Most science articles skip this step — they say "stress causes methylation" without explaining <em>how</em>.
+        Here's the actual chain of events inside the cell.<span class="cn">（细胞内部发生了什么）</span></p>
+
+      <div class="mech-pathway">
+        <!-- PATHWAY INTRO -->
+        <div class="pathway-intro reveal">
+          <p>Think of it like a fire alarm system. The extreme environment outside the body is the fire.
+          Hormones and metabolites are the alarm signal. Enzymes called <strong>methyltransferases</strong>
+          <span class="cn">（甲基转移酶）</span> are the workers who run around sticking warning labels — methyl tags — onto specific genes.</p>
+        </div>
+
+        <!-- THREE ENVIRONMENT TRACKS -->
+        <div class="mech-grid">
+
+          <!-- TRACK 1: STRESS -->
+          <div class="mech-card stress reveal" style="transition-delay:.05s">
+            <div class="mech-card-header">
+              <span class="mech-icon">😰</span>
+              <div>
+                <div class="mech-env">Chronic Stress <span class="cn">慢性压力</span></div>
+                <div class="mech-enzyme">Key enzyme: DNMT3a</div>
+              </div>
+            </div>
+            <ol class="mech-steps">
+              <li><span class="step-num">1</span>
+                Prolonged stress forces the adrenal glands to keep releasing <strong>cortisol</strong>
+                <span class="cn">（皮质醇）</span> — the body's "danger" hormone.
+              </li>
+              <li><span class="step-num">2</span>
+                Cortisol enters the cell nucleus and binds to <strong>glucocorticoid receptors (GR)</strong>
+                <span class="cn">（糖皮质激素受体）</span>.
+              </li>
+              <li><span class="step-num">3</span>
+                The GR complex physically recruits <strong>DNMT3a</strong> — a "writer" enzyme — and drags it
+                to stress-response gene regions.
+              </li>
+              <li><span class="step-num">4</span>
+                DNMT3a stamps methyl tags onto those genes, silencing them.
+                In a fetus, this rewires how the stress system will work for life.
+              </li>
+            </ol>
+            <div class="mech-result stress-r">
+              Result: genes controlling cortisol sensitivity get permanently muted —
+              offspring are born with a "hair-trigger" stress response.
+            </div>
+          </div>
+
+          <!-- TRACK 2: MALNUTRITION -->
+          <div class="mech-card nutrition reveal" style="transition-delay:.1s">
+            <div class="mech-card-header">
+              <span class="mech-icon">🍽️</span>
+              <div>
+                <div class="mech-env">Severe Malnutrition <span class="cn">严重营养不良</span></div>
+                <div class="mech-enzyme">Key molecule: SAM depletion</div>
+              </div>
+            </div>
+            <ol class="mech-steps">
+              <li><span class="step-num">1</span>
+                Methyl tags are made from a molecule called <strong>SAM</strong>
+                <span class="cn">（S-腺苷甲硫氨酸，甲基标签的原材料）</span>,
+                which is assembled from methionine, folate, and vitamin B12 from food.
+              </li>
+              <li><span class="step-num">2</span>
+                When the mother is severely undernourished, SAM supply drops sharply.
+                The cell detects a metabolic crisis.
+              </li>
+              <li><span class="step-num">3</span>
+                Paradoxically, this crisis activates <strong>alternative DNMT pathways</strong> —
+                the cell shifts limited SAM to "priority" genes, over-methylating growth
+                and metabolism regulators.
+              </li>
+              <li><span class="step-num">4</span>
+                Genes controlling fat storage and insulin sensitivity get tagged and silenced —
+                programming the offspring for a "famine-ready" metabolism.
+              </li>
+            </ol>
+            <div class="mech-result nutrition-r">
+              Result: offspring are metabolically primed to store fat aggressively —
+              helpful in famine, but a risk factor for obesity when food is abundant.
+            </div>
+          </div>
+
+          <!-- TRACK 3: TOXINS -->
+          <div class="mech-card toxin reveal" style="transition-delay:.15s">
+            <div class="mech-card-header">
+              <span class="mech-icon">☠️</span>
+              <div>
+                <div class="mech-env">Toxin Exposure <span class="cn">有毒物质暴露</span></div>
+                <div class="mech-enzyme">Key effect: DNMT3a up + DNMT1 disrupted</div>
+              </div>
+            </div>
+            <ol class="mech-steps">
+              <li><span class="step-num">1</span>
+                Heavy metals (lead, arsenic) and industrial chemicals like <strong>BPA</strong>
+                <span class="cn">（双酚A）</span> enter fetal cells through the placenta.
+              </li>
+              <li><span class="step-num">2</span>
+                They disrupt <strong>DNMT1</strong> — the enzyme that normally
+                <em>maintains</em> existing methylation patterns during cell division —
+                causing chaotic mis-copying.
+              </li>
+              <li><span class="step-num">3</span>
+                Simultaneously, oxidative stress from the toxins <strong>upregulates DNMT3a</strong>,
+                flooding the genome with new, unplanned methyl tags.
+              </li>
+              <li><span class="step-num">4</span>
+                The result is a mixed landscape: some regions are stripped bare while others are
+                over-tagged — both silencing protective genes and activating harmful ones.
+              </li>
+            </ol>
+            <div class="mech-result toxin-r">
+              Result: highest overall methyl-tag retention of the three scenarios —
+              toxin-induced tags are the hardest for erasure enzymes to clear.
+            </div>
+          </div>
+
+        </div><!-- /mech-grid -->
+
+        <!-- SUMMARY CHAIN -->
+        <div class="chain-box reveal" style="transition-delay:.2s">
+          <div class="chain-title">📎 The Universal Pattern</div>
+          <div class="chain-steps">
+            <div class="chain-step">Extreme environment outside body</div>
+            <div class="chain-arrow">↓</div>
+            <div class="chain-step">Chemical signal enters cell (cortisol / SAM drop / toxin)</div>
+            <div class="chain-arrow">↓</div>
+            <div class="chain-step">DNMT enzymes activated or misdirected</div>
+            <div class="chain-arrow">↓</div>
+            <div class="chain-step">Methyl tags written onto specific gene regions</div>
+            <div class="chain-arrow">↓</div>
+            <div class="chain-step">Gene expression in fetus permanently altered</div>
+            <div class="chain-arrow">↓</div>
+            <div class="chain-step last">Some tags survive erasure → passed to next generation</div>
+          </div>
+        </div>
+
+      </div><!-- /mech-pathway -->
+    </div>
+    <hr class="divider"/>
+
+    <!-- S3: FRAGMENT TYPES -->
+    <div class="section reveal" style="transition-delay:.15s">
+      <div class="eyebrow">🧩 DNA Fragment Types — Setting Up the Experiment</div>
+      <h2 class="sec-title">Not All DNA is Equally Erasable</h2>
+      <p class="sec-lead">
+        Here's the key twist: <strong>where</strong> a methyl tag lands on the genome determines
+        whether it survives the embryo's erasure reset
+        <span class="cn">（胚胎重编程）</span> and gets passed to offspring.
+        Three fragment types show this dramatically.
+      </p>
+      <div class="frag-grid">
+        <!-- Fragment A -->
+        <div class="frag-card frag-a">
+          <span class="frag-badge">Fragment A — High CpG</span>
+          <h4>Dense CpG Region with Protective Proteins<span class="cn"><br/>（高CpG密度 + 保护蛋白）</span></h4>
+          <svg viewBox="0 0 200 80" style="width:100%;margin:8px 0" xmlns="http://www.w3.org/2000/svg">
+            <rect width="200" height="80" fill="#0a0f20" rx="6"/>
+            <!-- DNA helix simplified -->
+            <path d="M10,35 Q35,20 60,35 Q85,50 110,35 Q135,20 160,35 Q175,28 190,35"
+                  fill="none" stroke="#2dd4bf" stroke-width="2"/>
+            <path d="M10,45 Q35,60 60,45 Q85,30 110,45 Q135,60 160,45 Q175,52 190,45"
+                  fill="none" stroke="#818cf8" stroke-width="2"/>
+            <!-- Methyl tags (many - high CpG) -->
+            <circle cx="35" cy="18" r="4" fill="#f87171"/><text x="35" y="13" text-anchor="middle" font-size="6" fill="#f87171">CH₃</text>
+            <circle cx="60" cy="18" r="4" fill="#f87171"/><text x="60" y="13" text-anchor="middle" font-size="6" fill="#f87171">CH₃</text>
+            <circle cx="85" cy="24" r="4" fill="#f87171"/><text x="85" y="19" text-anchor="middle" font-size="6" fill="#f87171">CH₃</text>
+            <circle cx="110" cy="18" r="4" fill="#f87171"/><text x="110" y="13" text-anchor="middle" font-size="6" fill="#f87171">CH₃</text>
+            <circle cx="135" cy="18" r="4" fill="#f87171"/><text x="135" y="13" text-anchor="middle" font-size="6" fill="#f87171">CH₃</text>
+            <!-- Protective proteins (rectangles) -->
+            <rect x="52" y="55" width="20" height="12" rx="3" fill="#4c52a8" opacity=".8"/>
+            <rect x="100" y="55" width="20" height="12" rx="3" fill="#4c52a8" opacity=".8"/>
+            <rect x="148" y="50" width="20" height="12" rx="3" fill="#4c52a8" opacity=".8"/>
+            <text x="100" y="76" text-anchor="middle" font-size="7" fill="#818cf8">Protective Proteins 保护蛋白</text>
+          </svg>
+          <p>High density of CpG sites, protective proteins (MBD complexes) bound tightly, chromatin
+            <span class="cn">（染色质）</span> packed dense. Erasure enzyme (TET) can't access these sites.</p>
+          <div class="frag-tip">
+            ⚠️ When methyl tags attach here, erasure enzymes struggle to get close —
+            tags are <strong>most likely to survive</strong> into offspring.
+          </div>
+        </div>
+        <!-- Fragment B -->
+        <div class="frag-card frag-b">
+          <span class="frag-badge">Fragment B — Medium CpG</span>
+          <h4>Normal Chromatin, Standard Accessibility<span class="cn"><br/>（普通片段，标准可及性）</span></h4>
+          <svg viewBox="0 0 200 80" style="width:100%;margin:8px 0" xmlns="http://www.w3.org/2000/svg">
+            <rect width="200" height="80" fill="#0a0f20" rx="6"/>
+            <path d="M10,35 Q35,20 60,35 Q85,50 110,35 Q135,20 160,35 Q175,28 190,35"
+                  fill="none" stroke="#2dd4bf" stroke-width="2"/>
+            <path d="M10,45 Q35,60 60,45 Q85,30 110,45 Q135,60 160,45 Q175,52 190,45"
+                  fill="none" stroke="#818cf8" stroke-width="2"/>
+            <!-- Fewer methyl tags -->
+            <circle cx="50" cy="18" r="4" fill="#fbbf24"/><text x="50" y="13" text-anchor="middle" font-size="6" fill="#fbbf24">CH₃</text>
+            <circle cx="110" cy="18" r="4" fill="#fbbf24"/><text x="110" y="13" text-anchor="middle" font-size="6" fill="#fbbf24">CH₃</text>
+            <!-- Erasure enzyme moving through -->
+            <rect x="130" y="28" width="18" height="12" rx="4" fill="#2dd4bf" opacity=".6"/>
+            <text x="139" y="37" text-anchor="middle" font-size="6" fill="#07091a" font-weight="700">TET</text>
+            <!-- Erased positions (faded) -->
+            <circle cx="75" cy="24" r="4" fill="#2d3a5a" stroke="#7889b0" stroke-width="1" stroke-dasharray="2 1"/>
+            <circle cx="155" cy="18" r="4" fill="#2d3a5a" stroke="#7889b0" stroke-width="1" stroke-dasharray="2 1"/>
+            <text x="100" y="72" text-anchor="middle" font-size="7" fill="#fbbf24">~30% survive · ~70% erased</text>
+          </svg>
+          <p>Medium CpG density, chromatin in normal open/closed balance. Erasure enzymes can access most
+            sites. Represents the majority of the genome — the "average" case.</p>
+          <div class="frag-tip">
+            🔄 Most methyl tags get wiped during the embryo reset
+            <span class="cn">（胚胎重置）</span>. Only ~30% survive — medium heritable risk.
+          </div>
+        </div>
+        <!-- Fragment C -->
+        <div class="frag-card frag-c">
+          <span class="frag-badge">Fragment C — Low CpG</span>
+          <h4>Loose Chromatin, Highly Accessible<span class="cn"><br/>（低CpG密度，染色质疏松）</span></h4>
+          <svg viewBox="0 0 200 80" style="width:100%;margin:8px 0" xmlns="http://www.w3.org/2000/svg">
+            <rect width="200" height="80" fill="#0a0f20" rx="6"/>
+            <!-- More open/loose helix representation -->
+            <path d="M10,38 Q50,18 90,38 Q130,58 170,38 Q185,32 195,38"
+                  fill="none" stroke="#2dd4bf" stroke-width="1.5" opacity=".7"/>
+            <path d="M10,42 Q50,62 90,42 Q130,22 170,42 Q185,48 195,42"
+                  fill="none" stroke="#818cf8" stroke-width="1.5" opacity=".7"/>
+            <!-- Very few methyl tags, one surviving -->
+            <circle cx="90" cy="20" r="4" fill="#4ade80"/><text x="90" y="15" text-anchor="middle" font-size="6" fill="#4ade80">CH₃</text>
+            <!-- Multiple erasure enzymes -->
+            <rect x="25" y="28" width="18" height="12" rx="4" fill="#2dd4bf" opacity=".7"/>
+            <text x="34" y="37" text-anchor="middle" font-size="6" fill="#07091a" font-weight="700">TET</text>
+            <rect x="140" y="28" width="18" height="12" rx="4" fill="#2dd4bf" opacity=".7"/>
+            <text x="149" y="37" text-anchor="middle" font-size="6" fill="#07091a" font-weight="700">TET</text>
+            <!-- All erased (faded circles) -->
+            <circle cx="45" cy="22" r="4" fill="#2d3a5a" stroke="#7889b0" stroke-width="1" stroke-dasharray="2 1"/>
+            <circle cx="135" cy="20" r="4" fill="#2d3a5a" stroke="#7889b0" stroke-width="1" stroke-dasharray="2 1"/>
+            <circle cx="165" cy="28" r="4" fill="#2d3a5a" stroke="#7889b0" stroke-width="1" stroke-dasharray="2 1"/>
+            <text x="100" y="72" text-anchor="middle" font-size="7" fill="#4ade80">~5–8% survive · nearly all erased</text>
+          </svg>
+          <p>Low CpG density, chromatin <span class="cn">（染色质）</span> relaxed and open. Multiple erasure
+            enzymes can access freely. Almost no protective protein binding. Methylation is the most transient here.</p>
+          <div class="frag-tip">
+            ✅ Almost all tags erased during embryo reset — very low heritable risk.
+            Nearly impossible for these to pass to the next generation.
+          </div>
+        </div>
+      </div>
+      <div class="bridge-box reveal" style="transition-delay:.2s">
+        <p>You now know the story, the mechanism, and the three players.<br/>
+        <strong>The experiment awaits.</strong> Run the simulation — choose your environment, intensity, and DNA fragment,
+        and watch the entire causal chain unfold in 3D.</p>
+        <button class="bridge-btn" onclick="showTab('tab2',document.querySelectorAll('.tab-btn')[1])">
+          → Go to Tab 2: Virtual Experiment
+        </button>
+      </div>
+    </div>
+  </div><!-- /tab1 -->
+
+  <!-- ══════════════════ TAB 2 ══════════════════ -->
+  <div id="tab2" class="tab-pane">
+    <div class="lab-wrap">
+      <!-- LEFT: 3D Canvas -->
+      <div class="lab-canvas-col">
+        <canvas id="three-canvas"></canvas>
+        <div class="act-overlay" id="actOverlay">
+          <div class="act-label" id="actLabel">Ready</div>
+          <div class="act-desc" id="actDesc">Select variables and click Run Experiment</div>
+        </div>
+        <div class="result-pct" id="resultPct">
+          <span id="pctNum">--</span>%
+          <small id="pctLabel">CH₃ Retention</small>
+        </div>
+      </div>
+      <!-- RIGHT: Controls -->
+      <div class="lab-ctrl-col">
+        <div>
+          <div class="ctrl-title">🔬 Experiment Controls</div>
+          <div style="font-size:12px;color:var(--muted)">Control variables one at a time to observe each effect.</div>
+        </div>
+        <hr class="ctrl-divider"/>
+        <div>
+          <div class="ctrl-step">Step 1 — Maternal Environment 母体环境</div>
+          <div class="chips" id="envChips">
+            <div class="chip" data-env="stress" onclick="selEnv(this)">
+              Chronic Stress <span class="chip-cn">慢性压力</span>
+            </div>
+            <div class="chip" data-env="malnut" onclick="selEnv(this)">
+              Severe Malnutrition <span class="chip-cn">严重营养不良</span>
+            </div>
+            <div class="chip" data-env="toxin" onclick="selEnv(this)">
+              Toxin Exposure <span class="chip-cn">有毒物质暴露</span>
+            </div>
+          </div>
+        </div>
+        <hr class="ctrl-divider"/>
+        <div>
+          <div class="ctrl-step">Step 2 — Environment Intensity 环境强度</div>
+          <div class="range-wrap">
+            <input type="range" id="intensitySlider" min="1" max="4" value="2"
+                   oninput="updateIntensityLabel(this.value)"/>
+            <div class="range-labels">
+              <span>Mild</span><span>Moderate</span><span>Prolonged</span><span>Extreme</span>
+            </div>
+          </div>
+          <div style="font-size:12px;color:var(--accent);text-align:center;margin-top:2px" id="intensityLabel">
+            Level 2 — Moderate
+          </div>
+        </div>
+        <hr class="ctrl-divider"/>
+        <div>
+          <div class="ctrl-step">Step 3 — DNA Fragment 选择DNA片段</div>
+          <div class="frag-chips" id="fragChips">
+            <div class="frag-chip" data-frag="A" onclick="selFrag(this,'A')">
+              <div class="fc-head">
+                <div class="fc-dot" style="background:var(--danger)"></div>
+                Fragment A — High CpG
+              </div>
+              <div style="font-size:11px;color:var(--muted)">Dense chromatin · protective proteins · hard to erase</div>
+            </div>
+            <div class="frag-chip" data-frag="B" onclick="selFrag(this,'B')">
+              <div class="fc-head">
+                <div class="fc-dot" style="background:var(--warn)"></div>
+                Fragment B — Medium CpG
+              </div>
+              <div style="font-size:11px;color:var(--muted)">Normal chromatin · ~30% tags survive</div>
+            </div>
+            <div class="frag-chip" data-frag="C" onclick="selFrag(this,'C')">
+              <div class="fc-head">
+                <div class="fc-dot" style="background:var(--success)"></div>
+                Fragment C — Low CpG
+              </div>
+              <div style="font-size:11px;color:var(--muted)">Loose chromatin · almost all tags erased</div>
+            </div>
+          </div>
+        </div>
+        <hr class="ctrl-divider"/>
+        <button class="run-btn" id="runBtn" onclick="runExperiment()">▶ Run Experiment</button>
+        <button class="reset-btn" onclick="resetExperiment()">↺ Reset</button>
+        <div class="status-text" id="statusText">Select all 3 variables to begin.</div>
+      </div>
+    </div>
+    <!-- Results table below -->
+    <div class="results-section">
+      <h3>📋 Observation Log — Virtual Experiment Results</h3>
+      <div class="result-table-wrap">
+        <table class="result-table" id="resultTable">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Environment</th>
+              <th>Intensity</th>
+              <th>Fragment</th>
+              <th>CH₃ Retention</th>
+              <th>Heritable Risk</th>
+              <th>Mechanism Note</th>
+            </tr>
+          </thead>
+          <tbody id="resultTbody">
+            <tr><td colspan="7" class="empty-state">No experiments run yet. Select variables and click Run.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div><!-- /tab2 -->
+</div><!-- /app -->
+
+<script>
+// ═══════════════════════════════════════════════
+//  PARTICLES
+// ═══════════════════════════════════════════════
+(function(){
+  const pf = document.getElementById('particles');
+  for(let i=0;i<42;i++){
+    const s = document.createElement('span');
+    const sz = 2+Math.random()*5;
+    s.style.cssText = `left:${Math.random()*100}%;bottom:${Math.random()*-10}%;`+
+      `width:${sz}px;height:${sz}px;`+
+      `background:${i%5===0?'#818cf8':'#2dd4bf'};`+
+      `--d:${7+Math.random()*10}s;--dl:${Math.random()*14}s`;
+    pf.appendChild(s);
+  }
+})();
+
+// ═══════════════════════════════════════════════
+//  LANDING
+// ═══════════════════════════════════════════════
+function enterLab(){
+  document.getElementById('landing').classList.add('exit');
+  setTimeout(()=>{
+    document.getElementById('landing').style.display='none';
+    document.getElementById('app').classList.add('visible');
+  },750);
+}
+
+// ═══════════════════════════════════════════════
+//  TABS
+// ═══════════════════════════════════════════════
+function showTab(id,btn){
+  document.querySelectorAll('.tab-pane').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  btn.classList.add('active');
+  if(id==='tab2' && !threeInitialized) initThree();
+}
+
+// ═══════════════════════════════════════════════
+//  SCROLL REVEAL
+// ═══════════════════════════════════════════════
+const revealObs = new IntersectionObserver(entries=>{
+  entries.forEach((e,i)=>{
+    if(e.isIntersecting){
+      setTimeout(()=>e.target.classList.add('in'), i*80);
+      revealObs.unobserve(e.target);
+    }
+  });
+},{threshold:0.12});
+document.querySelectorAll('.reveal').forEach(el=>revealObs.observe(el));
+
+// ═══════════════════════════════════════════════
+//  CONTROL PANEL STATE
+// ═══════════════════════════════════════════════
+let selEnvKey=null, selFragKey=null;
+const intensityNames=['','Mild','Moderate','Prolonged','Extreme'];
+
+function selEnv(el){
+  document.querySelectorAll('#envChips .chip').forEach(c=>c.classList.remove('sel'));
+  el.classList.add('sel');
+  selEnvKey = el.dataset.env;
+  updateStatus();
+}
+function selFrag(el,key){
+  document.querySelectorAll('#fragChips .frag-chip').forEach(c=>c.className='frag-chip');
+  const cls = key==='A'?'sel-a':key==='B'?'sel-b':'sel-c';
+  el.classList.add(cls);
+  selFragKey=key;
+  updateStatus();
+}
+function updateIntensityLabel(v){
+  document.getElementById('intensityLabel').textContent=`Level ${v} — ${intensityNames[+v]}`;
+  updateStatus();
+}
+function updateStatus(){
+  const txt = document.getElementById('statusText');
+  const iv = +document.getElementById('intensitySlider').value;
+  if(!selEnvKey||!selFragKey){
+    txt.textContent='Select all 3 variables to begin.'; return;
+  }
+  const envLabels={stress:'Chronic Stress',malnut:'Malnutrition',toxin:'Toxin Exposure'};
+  txt.innerHTML=`<b>${envLabels[selEnvKey]}</b> · Level ${iv} (${intensityNames[iv]}) · Fragment <b>${selFragKey}</b>`;
+}
+
+// ═══════════════════════════════════════════════
+//  RETENTION TABLE (deterministic, science-grounded)
+// ═══════════════════════════════════════════════
+const BASE_RETENTION = {
+  // [env][frag] at Extreme (level 4)
+  stress: {A:78,B:31,C:8},
+  malnut: {A:72,B:26,C:6},
+  toxin:  {A:85,B:34,C:10}
+};
+const INTENSITY_MULT = [0,0.25,0.50,0.75,1.0]; // index 1–4
+const MECHANISMS = {
+  stress:{
+    A:'Cortisol activates DNMT3a, dense chromatin blocks TET erasure — high retention.',
+    B:'Cortisol-driven methylation partially resists reset; ~30% survive.',
+    C:'Loose chromatin allows full TET access; almost all tags removed.'
+  },
+  malnut:{
+    A:'SAM depletion limits new tags, but existing tags at MBD-bound sites persist.',
+    B:'Reduced methyl-donor (SAM) supply creates fewer tags; moderate survival.',
+    C:'Minimal CpG density + low SAM = near-complete erasure.'
+  },
+  toxin:{
+    A:'DNMT3a upregulation + protective protein shielding → highest retention of all.',
+    B:'Toxin-triggered DNMT3a adds many tags; ~34% survive reset.',
+    C:'Even with upregulated DNMT3a, loose chromatin allows near-complete TET erasure.'
+  }
+};
+function getRisk(pct){
+  if(pct>=70) return ['Very High','risk-vh'];
+  if(pct>=40) return ['High','risk-h'];
+  if(pct>=20) return ['Medium','risk-m'];
+  return ['Low','risk-l'];
+}
+
+let runCount=0;
+let resultRows=[];
+
+function calcRetention(env,frag,level){
+  return Math.round(BASE_RETENTION[env][frag]*INTENSITY_MULT[level]);
+}
+
+// ═══════════════════════════════════════════════
+//  THREE.JS SETUP
+// ═══════════════════════════════════════════════
+let threeInitialized=false;
+let renderer,scene,camera,animFrameId;
+let dnaGroup,methylSpheres=[],proteinCubes=[],enzymes=[],stimSpheres=[];
+let clock, animPhase=0, animStart=0, experimentRunning=false;
+let pendingResult=null;
+
+function initThree(){
+  threeInitialized=true;
+  const canvas = document.getElementById('three-canvas');
+  renderer = new THREE.WebGLRenderer({canvas,antialias:true,alpha:false});
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio,2));
+  renderer.setClearColor(0x0d1228,1);
+
+  scene = new THREE.Scene();
+  scene.fog = new THREE.Fog(0x0d1228,18,40);
+
+  camera = new THREE.PerspectiveCamera(50,canvas.clientWidth/canvas.clientHeight,0.1,100);
+  camera.position.set(0,0,14);
+
+  // Lights
+  const amb = new THREE.AmbientLight(0x334466,1.2);
+  scene.add(amb);
+  const dir = new THREE.DirectionalLight(0x2dd4bf,1.4);
+  dir.position.set(5,8,5);
+  scene.add(dir);
+  const dir2 = new THREE.DirectionalLight(0x818cf8,0.8);
+  dir2.position.set(-5,-3,3);
+  scene.add(dir2);
+
+  clock = new THREE.Clock();
+  buildDNA();
+  resizeThree();
+  window.addEventListener('resize',resizeThree);
+  renderLoop();
+}
+
+function resizeThree(){
+  const col = document.querySelector('.lab-canvas-col');
+  if(!col||!renderer) return;
+  const w=col.clientWidth, h=col.clientHeight;
+  renderer.setSize(w,h,false);
+  camera.aspect=w/h;
+  camera.updateProjectionMatrix();
+}
+
+const HELIX_TURNS=3, HELIX_POINTS=120, HELIX_RADIUS=1.4, HELIX_HEIGHT=8;
+
+function buildDNA(){
+  dnaGroup = new THREE.Group();
+  scene.add(dnaGroup);
+
+  const mat1 = new THREE.MeshPhongMaterial({color:0x2dd4bf,shininess:80});
+  const mat2 = new THREE.MeshPhongMaterial({color:0x818cf8,shininess:80});
+  const baseMat = new THREE.MeshPhongMaterial({color:0x2d3a5a,shininess:30});
+
+  // Build helical tube paths
+  const pts1=[], pts2=[];
+  for(let i=0;i<=HELIX_POINTS;i++){
+    const t=i/HELIX_POINTS;
+    const angle=t*HELIX_TURNS*Math.PI*2;
+    const y=(t-0.5)*HELIX_HEIGHT;
+    pts1.push(new THREE.Vector3(Math.cos(angle)*HELIX_RADIUS, y, Math.sin(angle)*HELIX_RADIUS));
+    pts2.push(new THREE.Vector3(Math.cos(angle+Math.PI)*HELIX_RADIUS, y, Math.sin(angle+Math.PI)*HELIX_RADIUS));
+  }
+  const curve1=new THREE.CatmullRomCurve3(pts1);
+  const curve2=new THREE.CatmullRomCurve3(pts2);
+  const tubeGeo1=new THREE.TubeGeometry(curve1,120,0.12,8,false);
+  const tubeGeo2=new THREE.TubeGeometry(curve2,120,0.12,8,false);
+  dnaGroup.add(new THREE.Mesh(tubeGeo1,mat1));
+  dnaGroup.add(new THREE.Mesh(tubeGeo2,mat2));
+
+  // Base pair rungs
+  for(let i=0;i<18;i++){
+    const t=i/18;
+    const angle=t*HELIX_TURNS*Math.PI*2;
+    const y=(t-0.5)*HELIX_HEIGHT;
+    const p1=new THREE.Vector3(Math.cos(angle)*HELIX_RADIUS,y,Math.sin(angle)*HELIX_RADIUS);
+    const p2=new THREE.Vector3(Math.cos(angle+Math.PI)*HELIX_RADIUS,y,Math.sin(angle+Math.PI)*HELIX_RADIUS);
+    const mid=new THREE.Vector3().lerpVectors(p1,p2,0.5);
+    const len=p1.distanceTo(p2);
+    const rungGeo=new THREE.CylinderGeometry(0.04,0.04,len,6);
+    const rung=new THREE.Mesh(rungGeo,baseMat);
+    rung.position.copy(mid);
+    rung.lookAt(p2);
+    rung.rotateX(Math.PI/2);
+    dnaGroup.add(rung);
+  }
+
+  // CpG site markers (small teal spheres on strand 1)
+  const cpgGeo = new THREE.SphereGeometry(0.12,8,8);
+  const cpgMat = new THREE.MeshPhongMaterial({color:0x2dd4bf,emissive:0x0a4040});
+  for(let i=0;i<8;i++){
+    const t=(i+0.5)/9;
+    const angle=t*HELIX_TURNS*Math.PI*2;
+    const y=(t-0.5)*HELIX_HEIGHT;
+    const m=new THREE.Mesh(cpgGeo,cpgMat);
+    m.position.set(Math.cos(angle)*HELIX_RADIUS,y,Math.sin(angle)*HELIX_RADIUS);
+    m.userData={cpgT:t,cpgAngle:angle};
+    dnaGroup.add(m);
+  }
+}
+
+function clearExperimentObjects(){
+  [...methylSpheres,...proteinCubes,...enzymes,...stimSpheres].forEach(obj=>{
+    scene.remove(obj);
+    if(obj.geometry) obj.geometry.dispose();
+  });
+  methylSpheres=[];proteinCubes=[];enzymes=[];stimSpheres=[];
+}
+
+function addMethylTags(fragKey, count){
+  const geo=new THREE.SphereGeometry(0.18,10,10);
+  const mat=new THREE.MeshPhongMaterial({color:0xf87171,emissive:0x4a1010,shininess:90});
+  const positions=[];
+  for(let i=0;i<count;i++){
+    const t=(i+0.5)/(count+1);
+    const angle=t*HELIX_TURNS*Math.PI*2;
+    const y=(t-0.5)*HELIX_HEIGHT;
+    const x=Math.cos(angle)*HELIX_RADIUS;
+    const z=Math.sin(angle)*HELIX_RADIUS;
+    const offset=new THREE.Vector3(Math.cos(angle),0.3,Math.sin(angle)).normalize().multiplyScalar(0.55);
+    const m=new THREE.Mesh(geo,mat.clone());
+    m.position.set(x+offset.x,y+offset.y,z+offset.z);
+    m.scale.setScalar(0);
+    m.userData={targetScale:1,active:true};
+    methylSpheres.push(m);
+    scene.add(m);
+    positions.push({x:x+offset.x,y:y+offset.y,z:z+offset.z});
+  }
+  return positions;
+}
+
+function addProtectiveProteins(fragKey){
+  if(fragKey!=='A') return;
+  const geo=new THREE.BoxGeometry(0.55,0.35,0.35);
+  const mat=new THREE.MeshPhongMaterial({color:0x4c52a8,emissive:0x1a1e4a,transparent:true,opacity:.85});
+  for(let i=0;i<5;i++){
+    const t=(i+0.5)/6;
+    const angle=t*HELIX_TURNS*Math.PI*2+0.5;
+    const y=(t-0.5)*HELIX_HEIGHT;
+    const x=Math.cos(angle)*(HELIX_RADIUS+0.7);
+    const z=Math.sin(angle)*(HELIX_RADIUS+0.7);
+    const m=new THREE.Mesh(geo,mat.clone());
+    m.position.set(x,y,z);
+    m.rotation.y=angle;
+    m.scale.setScalar(0);
+    m.userData={targetScale:1};
+    proteinCubes.push(m);
+    scene.add(m);
+  }
+}
+
+function addStimSpheres(envKey){
+  const colors={stress:0xf87171,malnut:0xfbbf24,toxin:0x4ade80};
+  const col=colors[envKey]||0xffffff;
+  const geo=new THREE.SphereGeometry(0.22,8,8);
+  for(let i=0;i<12;i++){
+    const m=new THREE.Mesh(geo,new THREE.MeshPhongMaterial({color:col,emissive:col,emissiveIntensity:.3}));
+    const angle=Math.random()*Math.PI*2;
+    const r=5+Math.random()*3;
+    m.position.set(Math.cos(angle)*r,(Math.random()-0.5)*8,Math.sin(angle)*r);
+    m.userData={
+      orbRadius:r,orbAngle:angle,orbSpeed:0.4+Math.random()*0.5,
+      orbY:m.position.y,phase:Math.random()*Math.PI*2,
+      targetR:1.8+Math.random()*0.8
+    };
+    stimSpheres.push(m);
+    scene.add(m);
+  }
+}
+
+function addEnzyme(type){
+  let geo, mat;
+  if(type==='DNMT'){
+    geo=new THREE.IcosahedronGeometry(0.45,0);
+    mat=new THREE.MeshPhongMaterial({color:0xfbbf24,emissive:0x4a3000,shininess:120});
+  }else{
+    geo=new THREE.OctahedronGeometry(0.45,0);
+    mat=new THREE.MeshPhongMaterial({color:0x2dd4bf,emissive:0x00332a,shininess:120});
+  }
+  const m=new THREE.Mesh(geo,mat);
+  m.position.set(-4,4,0);
+  m.userData={type,t:0,speed:0.003};
+  enzymes.push(m);
+  scene.add(m);
+  return m;
+}
+
+// ═══════════════════════════════════════════════
+//  ANIMATION PHASES
+// ═══════════════════════════════════════════════
+let act=0; // 0=idle,1=stim,2=dnmt,3=tet,4=result
+let actTimer=0;
+const ACT_DURATIONS=[0,3,3,4,999];
+let methylCount=0, surviveCount=0;
+
+function runExperiment(){
+  if(!selEnvKey||!selFragKey) return;
+  const level=+document.getElementById('intensitySlider').value;
+  const retention=calcRetention(selEnvKey,selFragKey,level);
+  pendingResult={env:selEnvKey,level,frag:selFragKey,retention};
+
+  clearExperimentObjects();
+  document.getElementById('resultPct').classList.remove('show');
+  document.getElementById('actOverlay').classList.add('show');
+
+  act=1; actTimer=0;
+  experimentRunning=true;
+
+  const methCount=selFragKey==='A'?8:selFragKey==='B'?5:3;
+  methylCount=methCount;
+  const survives=Math.round(methCount*(retention/100));
+  surviveCount=Math.max(0,Math.min(survives,methCount));
+
+  addStimSpheres(selEnvKey);
+  addProtectiveProteins(selFragKey);
+  setActUI(1);
+}
+
+function setActUI(a){
+  const labels=['','Act I — Maternal Stress Signal','Act II — Methyltransferase Activated',
+    'Act III — Erasure Attempt','Act IV — Result'];
+  const descs=['',
+    'Environmental signal arrives — hormones & metabolites flood the cell',
+    'DNMT enzyme 甲基转移酶 writes methyl tags onto DNA',
+    'TET erasure enzyme 擦除酶 attempts to remove tags',
+    'Experiment complete — retained tags shown'];
+  document.getElementById('actLabel').textContent=labels[a];
+  document.getElementById('actDesc').textContent=descs[a];
+}
+
+function resetExperiment(){
+  clearExperimentObjects();
+  act=0; experimentRunning=false;
+  document.getElementById('actOverlay').classList.remove('show');
+  document.getElementById('resultPct').classList.remove('show');
+  camera.position.set(0,0,14);
+  dnaGroup&&(dnaGroup.rotation.y=0);
+}
+
+function renderLoop(){
+  animFrameId=requestAnimationFrame(renderLoop);
+  const dt=clock.getDelta();
+  const elapsed=clock.getElapsedTime();
+
+  // Idle DNA rotation
+  if(dnaGroup) dnaGroup.rotation.y += 0.004;
+
+  if(act>0){
+    actTimer+=dt;
+    // Scale-in new objects
+    [...methylSpheres,...proteinCubes].forEach(o=>{
+      if(o.userData.targetScale&&o.scale.x<o.userData.targetScale){
+        o.scale.setScalar(Math.min(o.scale.x+dt*2.5, o.userData.targetScale));
+      }
+    });
+  }
+
+  // ACT 1: stim spheres orbit inward
+  if(act===1){
+    stimSpheres.forEach(s=>{
+      s.userData.orbAngle+=dt*s.userData.orbSpeed;
+      const targetR=s.userData.targetR;
+      s.userData.orbRadius=THREE.MathUtils.lerp(s.userData.orbRadius,targetR,dt*1.2);
+      const r=s.userData.orbRadius;
+      s.position.set(
+        Math.cos(s.userData.orbAngle)*r,
+        s.userData.orbY+Math.sin(elapsed*1.2+s.userData.phase)*0.3,
+        Math.sin(s.userData.orbAngle)*r
+      );
+    });
+    if(actTimer>ACT_DURATIONS[1]){
+      act=2; actTimer=0;
+      setActUI(2);
+      const enz=addEnzyme('DNMT');
+      enz.userData.active=true;
+      addMethylTags(selFragKey,methylCount);
+    }
+  }
+
+  // ACT 2: DNMT moves along DNA, methyl spheres grow
+  if(act===2){
+    enzymes.filter(e=>e.userData.type==='DNMT').forEach(e=>{
+      e.userData.t=Math.min(e.userData.t+dt*0.28,1);
+      const t=e.userData.t;
+      const angle=t*HELIX_TURNS*Math.PI*2;
+      const y=(t-0.5)*HELIX_HEIGHT;
+      e.position.set(Math.cos(angle)*(HELIX_RADIUS+0.8),y,Math.sin(angle)*(HELIX_RADIUS+0.8));
+      e.rotation.y+=dt*2;
+    });
+    if(actTimer>ACT_DURATIONS[2]){
+      act=3; actTimer=0;
+      setActUI(3);
+      const enz=addEnzyme('TET');
+      enz.userData.active=true;
+    }
+  }
+
+  // ACT 3: TET enzyme moves along, erases some methyls
+  if(act===3){
+    enzymes.filter(e=>e.userData.type==='TET').forEach(e=>{
+      e.userData.t=Math.min(e.userData.t+dt*0.22,1);
+      const t=e.userData.t;
+      const angle=t*HELIX_TURNS*Math.PI*2+Math.PI*0.3;
+      const y=(t-0.5)*HELIX_HEIGHT;
+      e.position.set(Math.cos(angle)*(HELIX_RADIUS+0.8),y,Math.sin(angle)*(HELIX_RADIUS+0.8));
+      e.rotation.y-=dt*2;
+      // Erase methyls beyond surviveCount
+      const eraseCount=methylCount-surviveCount;
+      methylSpheres.slice(0,eraseCount).forEach((ms,i)=>{
+        if(ms.scale.x>0) ms.scale.setScalar(Math.max(ms.scale.x-dt*0.5,0));
+      });
+    });
+    // Protective proteins block TET for frag A
+    if(selFragKey==='A'){
+      proteinCubes.forEach(pc=>{
+        pc.rotation.y+=dt*0.8;
+        const glow=0.4+0.2*Math.sin(elapsed*3);
+        pc.material.emissiveIntensity=glow;
+      });
+    }
+    if(actTimer>ACT_DURATIONS[3]){
+      act=4; actTimer=0;
+      setActUI(4);
+      showResult();
+    }
+  }
+
+  // ACT 4: surviving methyls pulse
+  if(act===4){
+    methylSpheres.slice(methylCount-surviveCount).forEach(ms=>{
+      const pulse=0.9+0.15*Math.sin(elapsed*3+ms.position.y);
+      ms.scale.setScalar(pulse);
+      ms.material.emissiveIntensity=0.2+0.2*Math.sin(elapsed*3+ms.position.y);
+    });
+  }
+
+  // Stim spheres continue orbiting in all acts
+  if(act>1){
+    stimSpheres.forEach(s=>{
+      s.userData.orbAngle+=dt*0.15;
+      const r=s.userData.targetR;
+      s.position.set(
+        Math.cos(s.userData.orbAngle)*r,
+        s.userData.orbY+Math.sin(elapsed*0.8+s.userData.phase)*0.2,
+        Math.sin(s.userData.orbAngle)*r
+      );
+    });
+  }
+
+  renderer.render(scene,camera);
+}
+
+function showResult(){
+  const r=pendingResult;
+  document.getElementById('pctNum').textContent=r.retention;
+  document.getElementById('pctLabel').textContent='CH₃ Retention 甲基保留率';
+  document.getElementById('resultPct').classList.add('show');
+  // Camera pull back
+  const targetZ=17;
+  (function pullBack(){
+    if(camera.position.z<targetZ-0.1){
+      camera.position.z+=0.05;
+      requestAnimationFrame(pullBack);
+    }
+  })();
+  addTableRow(r);
+}
+
+// ═══════════════════════════════════════════════
+//  RESULTS TABLE
+// ═══════════════════════════════════════════════
+const envNames={stress:'Chronic Stress',malnut:'Malnutrition',toxin:'Toxin Exposure'};
+const fragColors={A:'var(--danger)',B:'var(--warn)',C:'var(--success)'};
+let rowCount=0;
+
+function addTableRow(r){
+  rowCount++;
+  const tbody=document.getElementById('resultTbody');
+  // Remove empty state
+  const empty=tbody.querySelector('.empty-state');
+  if(empty) empty.closest('tr').remove();
+  // Max 5 rows
+  while(tbody.rows.length>=5) tbody.deleteRow(0);
+  const [riskLabel,riskClass]=getRisk(r.retention);
+  const mechNote=MECHANISMS[r.env][r.frag];
+  const pct=r.retention;
+  const tr=document.createElement('tr');
+  tr.innerHTML=`
+    <td style="color:var(--dim);font-size:12px">#${rowCount}</td>
+    <td>${envNames[r.env]}</td>
+    <td>${intensityNames[r.level]}</td>
+    <td><span style="color:${fragColors[r.frag]};font-weight:700">Fragment ${r.frag}</span></td>
+    <td>
+      <div style="display:flex;align-items:center;gap:8px">
+        <div style="width:60px;height:6px;background:var(--dim);border-radius:3px;overflow:hidden">
+          <div style="width:${pct}%;height:100%;background:${pct>60?'var(--danger)':pct>30?'var(--warn)':'var(--success)'};border-radius:3px"></div>
+        </div>
+        <b>${pct}%</b>
+      </div>
+    </td>
+    <td><span class="risk-badge ${riskClass}">${riskLabel}</span></td>
+    <td style="font-size:12px;color:var(--muted);max-width:240px">${mechNote}</td>`;
+  tbody.appendChild(tr);
+}
+</script>
+</body>
+</html>
