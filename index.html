@@ -87,6 +87,7 @@ p.sec-lead{color:var(--muted);font-size:15.5px;max-width:640px;margin-bottom:32p
 .reveal{opacity:0;transform:translateY(28px);transition:opacity .6s ease,transform .6s ease}
 .reveal.in{opacity:1;transform:translateY(0)}
 .cn{font-size:12px;color:var(--muted);font-style:normal;margin-left:5px}
+.t3-panel .cn, .t3-step-body .cn{color:#e4b84a;font-size:12px;font-style:normal;margin-left:4px}
 /* CASE FILE */
 .story-grid{display:grid;grid-template-columns:1fr 1fr;gap:32px;align-items:start}
 @media(max-width:680px){.story-grid{grid-template-columns:1fr}}
@@ -283,10 +284,47 @@ p.sec-lead{color:var(--muted);font-size:15.5px;max-width:640px;margin-bottom:32p
 .chain-steps{display:flex;flex-direction:column;align-items:flex-start;gap:0}
 .chain-step{background:var(--bg-card2);border:1px solid var(--border);
   border-radius:var(--r-sm);padding:9px 18px;
-  font-size:13.5px;color:var(--text);min-width:320px}
+  font-size:13.5px;color:var(--text);min-width:320px;
+  display:flex;align-items:center;justify-content:space-between;gap:12px}
+.cs-text{flex:1;line-height:1.5}
+.cs-emoji{font-size:18px;flex-shrink:0;line-height:1;opacity:.85}
 .chain-step.last{border-color:var(--accent);color:var(--accent);
   background:rgba(45,212,191,.06);font-weight:700}
 .chain-arrow{font-size:18px;color:var(--dim);padding:2px 20px;line-height:1.4}
+/* ── TAB 3 ── */
+#tab3{display:none}
+#tab3.active{display:flex;flex-direction:column;min-height:calc(100vh - 54px)}
+.t3-layout{display:flex;flex:1;min-height:calc(100vh - 110px)}
+.t3-canvas-wrap{flex:1;position:relative;background:var(--bg-r)}
+#t3canvas{width:100%;height:100%;display:block}
+.t3-panel{width:340px;flex-shrink:0;background:var(--bg-card);border-left:1px solid var(--border);
+  display:flex;flex-direction:column;padding:24px;gap:14px;overflow-y:auto}
+.t3-panel h3{font-size:15px;font-weight:800;color:var(--text);margin-bottom:2px}
+.step-indicators{display:flex;gap:8px;flex-wrap:wrap}
+.step-dot{width:32px;height:32px;border-radius:50%;border:2px solid var(--border);
+  display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;
+  color:var(--muted);cursor:pointer;transition:all .2s;flex-shrink:0}
+.step-dot.done{border-color:var(--accent-d);background:var(--accent-x);color:var(--accent)}
+.step-dot.active{border-color:var(--accent);background:var(--accent);color:#07091a;
+  box-shadow:0 0 12px rgba(45,212,191,.4)}
+.t3-step-title{font-size:15px;font-weight:800;color:var(--accent);line-height:1.3}
+.t3-step-body{font-size:13.5px;color:var(--muted);line-height:1.75;flex:1}
+.t3-step-body strong{color:var(--text)}
+.t3-step-body .cn{font-size:11.5px;color:var(--dim);margin-left:3px}
+.t3-next-btn{padding:12px;border-radius:var(--r-md);border:none;cursor:pointer;
+  font-size:14px;font-weight:800;
+  background:linear-gradient(135deg,var(--accent-d),var(--accent));
+  color:#07091a;position:relative;overflow:hidden;transition:transform .15s}
+.t3-next-btn:hover{transform:scale(1.03)}
+.t3-next-btn:disabled{opacity:.45;pointer-events:none}
+.t3-next-btn::after{content:'';position:absolute;top:0;left:-100%;width:55%;height:100%;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.22),transparent);
+  animation:sweep 2.4s ease-in-out infinite}
+.t3-restart-btn{padding:9px;border-radius:var(--r-sm);border:1px solid var(--border);
+  background:transparent;color:var(--muted);font-size:13px;cursor:pointer;transition:all .2s}
+.t3-restart-btn:hover{border-color:var(--border-hi);color:var(--text)}
+.t3-label-overlay{position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none}
+.t3-label{transition:opacity .5s ease;font-family:'Segoe UI',sans-serif}
 </style>
 </head>
 <body>
@@ -295,7 +333,7 @@ p.sec-lead{color:var(--muted);font-size:15.5px;max-width:640px;margin-bottom:32p
 <!-- LANDING -->
 <div id="landing">
   <div class="land-badge">🧬 AI × Biology Hack Challenge &nbsp;·&nbsp; Track 1: Genes &amp; Heredity</div>
-  <h1 class="land-h1">Why Do Grandma's Scars<br/>Echo in Your Cells?</h1>
+  <h1 class="land-h1">Why Do Grandma's Scars<br/>Echo in Your Cells?<br/><span style="font-size:clamp(14px,2.2vw,22px);opacity:.7;-webkit-text-fill-color:var(--muted);background:none">— Epigenetic Transgenerational Inheritance <span style="font-size:.85em;color:var(--muted)">表观基因跨代遗传</span></span></h1>
   <p class="land-sub">
     In the winter of 1944, <b>Nazi forces cut off food to the Netherlands</b>.<br/>
     The survivors' children — and <i>their</i> children — carried biological echoes of that famine.<br/>
@@ -316,6 +354,7 @@ p.sec-lead{color:var(--muted);font-size:15.5px;max-width:640px;margin-bottom:32p
     <nav class="tab-nav">
       <button class="tab-btn active" onclick="showTab('tab1',this)">Tab 1 — Science</button>
       <button class="tab-btn" onclick="showTab('tab2',this)">Tab 2 — Experiment</button>
+      <button class="tab-btn" onclick="showTab('tab3',this)">Tab 3 — Inheritance</button>
     </nav>
   </header>
 
@@ -406,6 +445,9 @@ p.sec-lead{color:var(--muted);font-size:15.5px;max-width:640px;margin-bottom:32p
         <p style="font-size:15px">The answer lies in tiny chemical tags called <b>methyl groups</b>
         <span class="cn">（甲基，CH₃）</span>.
         They don't rewrite the DNA — they tell the cell whether to <em>read</em> a gene or <em>ignore</em> it.
+        This is exactly why the grandchildren of Dutch Hunger Winter survivors still showed elevated metabolic risk:
+        the methyl tags written onto the grandmother's genes during starvation were never fully erased —
+        they were passed down, silencing the same metabolic genes in the next generation, and the one after that.
         And under extreme environmental pressure, these tags can be written, and sometimes survive the reset
         between generations. That's <b>epigenetic transgenerational inheritance</b>
         <span class="cn">（表观遗传跨代遗传）</span>.</p>
@@ -520,140 +562,115 @@ p.sec-lead{color:var(--muted);font-size:15.5px;max-width:640px;margin-bottom:32p
       <p class="sec-lead">Most science articles skip this step — they say "stress causes methylation" without explaining <em>how</em>.
         Here's the actual chain of events inside the cell.<span class="cn">（细胞内部发生了什么）</span></p>
 
-      <div class="mech-pathway">
-        <!-- PATHWAY INTRO -->
-        <div class="pathway-intro reveal">
-          <p>Think of it like a fire alarm system. The extreme environment outside the body is the fire.
-          Hormones and metabolites are the alarm signal. Enzymes called <strong>methyltransferases</strong>
-          <span class="cn">（甲基转移酶）</span> are the workers who run around sticking warning labels — methyl tags — onto specific genes.</p>
+      <div class="pathway-intro reveal">
+        <p>Think of it like a fire alarm system. The extreme environment outside the body is the fire.
+        Hormones and metabolites are the alarm signal. Enzymes called <strong>methyltransferases</strong>
+        <span class="cn">（甲基转移酶）</span> are the workers who run around sticking warning labels — methyl tags — onto specific genes.</p>
+      </div>
+
+      <div class="mech-two-col reveal" style="transition-delay:.08s">
+        <!-- FULL WIDTH: chain + bullets -->
+        <div style="grid-column:1/-1">
+          <div class="chain-box">
+            <div class="chain-title">📎 The Universal Pattern</div>
+            <div class="chain-steps">
+
+              <div class="chain-step">
+                <span class="cs-text">Extreme environment outside body</span>
+                <svg class="cs-svg" viewBox="0 0 70 50" xmlns="http://www.w3.org/2000/svg">
+                  <circle cx="35" cy="25" r="16" fill="#111832" stroke="#f87171" stroke-width="1.5" stroke-dasharray="3 2"/>
+                  <circle cx="35" cy="25" r="22" fill="none" stroke="#f87171" stroke-width="1" opacity=".4" stroke-dasharray="2 3">
+                    <animate attributeName="r" from="18" to="26" dur="2s" repeatCount="indefinite"/>
+                    <animate attributeName="opacity" from=".5" to="0" dur="2s" repeatCount="indefinite"/>
+                  </circle>
+                  <text x="35" y="21" text-anchor="middle" font-size="11">⚡</text>
+                  <text x="35" y="32" text-anchor="middle" font-size="6" fill="#f87171" font-weight="700">CELL</text>
+                </svg>
+              </div>
+
+              <div class="chain-arrow">↓</div>
+
+              <div class="chain-step">
+                <span class="cs-text">Chemical signal enters cell <span class="cn">（皮质醇 / SAM耗竭 / 毒素）</span></span>
+                <svg class="cs-svg" viewBox="0 0 70 50" xmlns="http://www.w3.org/2000/svg">
+                  <circle cx="14" cy="25" r="5" fill="#f87171" opacity=".8"/>
+                  <circle cx="22" cy="18" r="4" fill="#fbbf24" opacity=".7"/>
+                  <circle cx="22" cy="32" r="3.5" fill="#818cf8" opacity=".7"/>
+                  <line x1="27" y1="25" x2="40" y2="25" stroke="#2d3a5a" stroke-width="1" stroke-dasharray="3 2"/>
+                  <polygon points="42,25 38,22 38,28" fill="#2d3a5a"/>
+                  <circle cx="54" cy="25" r="12" fill="#0a3530" stroke="#2dd4bf" stroke-width="1.5"/>
+                  <text x="54" y="29" text-anchor="middle" font-size="7" fill="#2dd4bf" font-weight="700">CELL</text>
+                </svg>
+              </div>
+
+              <div class="chain-arrow">↓</div>
+
+              <div class="chain-step">
+                <span class="cs-text">DNMT enzymes activated <span class="cn">（甲基转移酶激活）</span></span>
+                <svg class="cs-svg" viewBox="0 0 70 50" xmlns="http://www.w3.org/2000/svg">
+                  <defs><marker id="arr2" markerWidth="5" markerHeight="5" refX="2.5" refY="2.5" orient="auto"><path d="M0,0 L5,2.5 L0,5 Z" fill="#2dd4bf"/></marker></defs>
+                  <polygon points="20,15 30,21 27,34 13,34 10,21" fill="#0a3530" stroke="#2dd4bf" stroke-width="1.5"/>
+                  <text x="20" y="28" text-anchor="middle" font-size="5.5" fill="#2dd4bf" font-weight="700">DNMT3a</text>
+                  <line x1="31" y1="25" x2="42" y2="25" stroke="#2dd4bf" stroke-width="1.2" marker-end="url(#arr2)"/>
+                  <path d="M45,20 Q52,16 59,20 Q52,24 45,20" fill="none" stroke="#818cf8" stroke-width="1.5"/>
+                  <path d="M45,24 Q52,28 59,24 Q52,20 45,24" fill="none" stroke="#2dd4bf" stroke-width="1.5"/>
+                </svg>
+              </div>
+
+              <div class="chain-arrow">↓</div>
+
+              <div class="chain-step">
+                <span class="cs-text">Methyl tags written onto gene regions <span class="cn">（甲基标签写入）</span></span>
+                <svg class="cs-svg" viewBox="0 0 70 50" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M8,28 Q22,22 36,28 Q50,34 62,28" fill="none" stroke="#2dd4bf" stroke-width="1.8"/>
+                  <path d="M8,32 Q22,38 36,32 Q50,26 62,32" fill="none" stroke="#818cf8" stroke-width="1.8"/>
+                  <circle cx="18" cy="23" r="5" fill="#f97316"/>
+                  <text x="18" y="26" text-anchor="middle" font-size="4.5" fill="white" font-weight="700">CH₃</text>
+                  <circle cx="33" cy="20" r="5" fill="#f97316"/>
+                  <text x="33" y="23" text-anchor="middle" font-size="4.5" fill="white" font-weight="700">CH₃</text>
+                  <circle cx="48" cy="23" r="5" fill="#f97316"/>
+                  <text x="48" y="26" text-anchor="middle" font-size="4.5" fill="white" font-weight="700">CH₃</text>
+                </svg>
+              </div>
+
+              <div class="chain-arrow">↓</div>
+
+              <div class="chain-step">
+                <span class="cs-text">Gene expression in fetus permanently altered <span class="cn">（胎儿基因表达改变）</span></span>
+                <svg class="cs-svg" viewBox="0 0 70 50" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M8,28 Q22,22 36,28 Q50,34 62,28" fill="none" stroke="#2dd4bf" stroke-width="1.8" opacity=".4"/>
+                  <path d="M8,32 Q22,38 36,32 Q50,26 62,32" fill="none" stroke="#818cf8" stroke-width="1.8" opacity=".4"/>
+                  <rect x="14" y="16" width="40" height="12" rx="3" fill="rgba(248,113,113,.15)" stroke="#f87171" stroke-width="1"/>
+                  <text x="34" y="25" text-anchor="middle" font-size="6" fill="#f87171" font-weight="700">GENE OFF</text>
+                </svg>
+              </div>
+
+              <div class="chain-arrow">↓</div>
+
+              <div class="chain-step last">
+                <span class="cs-text">Some tags survive erasure → passed to next generation <span class="cn">（跨代遗传）</span></span>
+                <svg class="cs-svg" viewBox="0 0 70 50" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M5,18 Q20,13 35,18 Q50,23 62,18" fill="none" stroke="#2dd4bf" stroke-width="1.4" opacity=".6"/>
+                  <path d="M5,22 Q20,27 35,22 Q50,17 62,22" fill="none" stroke="#818cf8" stroke-width="1.4" opacity=".6"/>
+                  <circle cx="22" cy="13" r="4" fill="#f97316"><animate attributeName="opacity" values="1;0.4;1" dur="1.6s" repeatCount="indefinite"/></circle>
+                  <path d="M5,34 Q20,29 35,34 Q50,39 62,34" fill="none" stroke="#2dd4bf" stroke-width="1.4" opacity=".6"/>
+                  <path d="M5,38 Q20,43 35,38 Q50,33 62,38" fill="none" stroke="#818cf8" stroke-width="1.4" opacity=".6"/>
+                  <circle cx="22" cy="29" r="4" fill="#f97316"><animate attributeName="opacity" values="1;0.4;1" dur="1.6s" begin=".3s" repeatCount="indefinite"/></circle>
+                  <line x1="35" y1="22" x2="35" y2="28" stroke="#2d3a5a" stroke-width="1" stroke-dasharray="2 2"/>
+                  <text x="50" y="32" text-anchor="middle" font-size="6" fill="#4ade80">F1</text>
+                  <text x="50" y="40" text-anchor="middle" font-size="5" fill="#7889b0">inherited</text>
+                </svg>
+              </div>
+
+            </div>
+          </div>
+          <ul class="mech-bullets">
+            <li>😰 <strong>Chronic Stress</strong> — cortisol <span class="cn">（皮质醇）</span> floods the nucleus, recruits DNMT3a to silence stress-regulation genes</li>
+            <li>🍽️ <strong>Malnutrition</strong> — SAM <span class="cn">（甲基标签的原材料）</span> runs low, but metabolic crisis triggers abnormal DNMT activity at growth genes</li>
+            <li>☠️ <strong>Toxin Exposure</strong> — chemicals like BPA <span class="cn">（双酚A）</span> directly upregulate DNMT3a while disrupting DNMT1's normal maintenance rhythm</li>
+          </ul>
         </div>
-
-        <!-- THREE ENVIRONMENT TRACKS -->
-        <div class="mech-grid">
-
-          <!-- TRACK 1: STRESS -->
-          <div class="mech-card stress reveal" style="transition-delay:.05s">
-            <div class="mech-card-header">
-              <span class="mech-icon">😰</span>
-              <div>
-                <div class="mech-env">Chronic Stress <span class="cn">慢性压力</span></div>
-                <div class="mech-enzyme">Key enzyme: DNMT3a</div>
-              </div>
-            </div>
-            <ol class="mech-steps">
-              <li><span class="step-num">1</span>
-                Prolonged stress forces the adrenal glands to keep releasing <strong>cortisol</strong>
-                <span class="cn">（皮质醇）</span> — the body's "danger" hormone.
-              </li>
-              <li><span class="step-num">2</span>
-                Cortisol enters the cell nucleus and binds to <strong>glucocorticoid receptors (GR)</strong>
-                <span class="cn">（糖皮质激素受体）</span>.
-              </li>
-              <li><span class="step-num">3</span>
-                The GR complex physically recruits <strong>DNMT3a</strong> — a "writer" enzyme — and drags it
-                to stress-response gene regions.
-              </li>
-              <li><span class="step-num">4</span>
-                DNMT3a stamps methyl tags onto those genes, silencing them.
-                In a fetus, this rewires how the stress system will work for life.
-              </li>
-            </ol>
-            <div class="mech-result stress-r">
-              Result: genes controlling cortisol sensitivity get permanently muted —
-              offspring are born with a "hair-trigger" stress response.
-            </div>
-          </div>
-
-          <!-- TRACK 2: MALNUTRITION -->
-          <div class="mech-card nutrition reveal" style="transition-delay:.1s">
-            <div class="mech-card-header">
-              <span class="mech-icon">🍽️</span>
-              <div>
-                <div class="mech-env">Severe Malnutrition <span class="cn">严重营养不良</span></div>
-                <div class="mech-enzyme">Key molecule: SAM depletion</div>
-              </div>
-            </div>
-            <ol class="mech-steps">
-              <li><span class="step-num">1</span>
-                Methyl tags are made from a molecule called <strong>SAM</strong>
-                <span class="cn">（S-腺苷甲硫氨酸，甲基标签的原材料）</span>,
-                which is assembled from methionine, folate, and vitamin B12 from food.
-              </li>
-              <li><span class="step-num">2</span>
-                When the mother is severely undernourished, SAM supply drops sharply.
-                The cell detects a metabolic crisis.
-              </li>
-              <li><span class="step-num">3</span>
-                Paradoxically, this crisis activates <strong>alternative DNMT pathways</strong> —
-                the cell shifts limited SAM to "priority" genes, over-methylating growth
-                and metabolism regulators.
-              </li>
-              <li><span class="step-num">4</span>
-                Genes controlling fat storage and insulin sensitivity get tagged and silenced —
-                programming the offspring for a "famine-ready" metabolism.
-              </li>
-            </ol>
-            <div class="mech-result nutrition-r">
-              Result: offspring are metabolically primed to store fat aggressively —
-              helpful in famine, but a risk factor for obesity when food is abundant.
-            </div>
-          </div>
-
-          <!-- TRACK 3: TOXINS -->
-          <div class="mech-card toxin reveal" style="transition-delay:.15s">
-            <div class="mech-card-header">
-              <span class="mech-icon">☠️</span>
-              <div>
-                <div class="mech-env">Toxin Exposure <span class="cn">有毒物质暴露</span></div>
-                <div class="mech-enzyme">Key effect: DNMT3a up + DNMT1 disrupted</div>
-              </div>
-            </div>
-            <ol class="mech-steps">
-              <li><span class="step-num">1</span>
-                Heavy metals (lead, arsenic) and industrial chemicals like <strong>BPA</strong>
-                <span class="cn">（双酚A）</span> enter fetal cells through the placenta.
-              </li>
-              <li><span class="step-num">2</span>
-                They disrupt <strong>DNMT1</strong> — the enzyme that normally
-                <em>maintains</em> existing methylation patterns during cell division —
-                causing chaotic mis-copying.
-              </li>
-              <li><span class="step-num">3</span>
-                Simultaneously, oxidative stress from the toxins <strong>upregulates DNMT3a</strong>,
-                flooding the genome with new, unplanned methyl tags.
-              </li>
-              <li><span class="step-num">4</span>
-                The result is a mixed landscape: some regions are stripped bare while others are
-                over-tagged — both silencing protective genes and activating harmful ones.
-              </li>
-            </ol>
-            <div class="mech-result toxin-r">
-              Result: highest overall methyl-tag retention of the three scenarios —
-              toxin-induced tags are the hardest for erasure enzymes to clear.
-            </div>
-          </div>
-
-        </div><!-- /mech-grid -->
-
-        <!-- SUMMARY CHAIN -->
-        <div class="chain-box reveal" style="transition-delay:.2s">
-          <div class="chain-title">📎 The Universal Pattern</div>
-          <div class="chain-steps">
-            <div class="chain-step">Extreme environment outside body</div>
-            <div class="chain-arrow">↓</div>
-            <div class="chain-step">Chemical signal enters cell (cortisol / SAM drop / toxin)</div>
-            <div class="chain-arrow">↓</div>
-            <div class="chain-step">DNMT enzymes activated or misdirected</div>
-            <div class="chain-arrow">↓</div>
-            <div class="chain-step">Methyl tags written onto specific gene regions</div>
-            <div class="chain-arrow">↓</div>
-            <div class="chain-step">Gene expression in fetus permanently altered</div>
-            <div class="chain-arrow">↓</div>
-            <div class="chain-step last">Some tags survive erasure → passed to next generation</div>
-          </div>
-        </div>
-
-      </div><!-- /mech-pathway -->
+      </div>
     </div>
     <hr class="divider"/>
 
@@ -696,6 +713,9 @@ p.sec-lead{color:var(--muted);font-size:15.5px;max-width:640px;margin-bottom:32p
           <div class="frag-tip">
             ⚠️ When methyl tags attach here, erasure enzymes struggle to get close —
             tags are <strong>most likely to survive</strong> into offspring.
+            This means that if a gene region like this is exposed to <strong>chronic stress, severe malnutrition, or toxin exposure</strong>,
+            the silencing effect on that gene is most likely to be inherited — increasing the offspring's risk of stress disorders,
+            metabolic disease, or developmental disruption.
           </div>
         </div>
         <!-- Fragment B -->
@@ -783,6 +803,14 @@ p.sec-lead{color:var(--muted);font-size:15.5px;max-width:640px;margin-bottom:32p
           <span id="pctNum">--</span>%
           <small id="pctLabel">CH₃ Retention</small>
         </div>
+        <div id="methyl-tooltip" style="
+          position:absolute;display:none;pointer-events:none;
+          background:rgba(13,18,40,.92);border:1px solid #f97316;
+          color:#f97316;font-size:12px;font-weight:700;
+          padding:6px 12px;border-radius:8px;white-space:nowrap;
+          box-shadow:0 0 12px rgba(249,115,22,.3);z-index:50;
+          transition:opacity .15s ease;
+        ">🏷️ Methyl Tag 甲基标签 (CH₃)</div>
       </div>
       <!-- RIGHT: Controls -->
       <div class="lab-ctrl-col">
@@ -847,9 +875,11 @@ p.sec-lead{color:var(--muted);font-size:15.5px;max-width:640px;margin-bottom:32p
           </div>
         </div>
         <hr class="ctrl-divider"/>
-        <button class="run-btn" id="runBtn" onclick="runExperiment()">▶ Run Experiment</button>
-        <button class="reset-btn" onclick="resetExperiment()">↺ Reset</button>
-        <div class="status-text" id="statusText">Select all 3 variables to begin.</div>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:10px;margin-top:4px">
+          <button class="run-btn" id="runBtn" onclick="runExperiment()" style="width:100%">▶ Run Experiment</button>
+          <button class="reset-btn" onclick="resetExperiment()" style="width:100%;text-align:center">↺ Reset</button>
+          <div class="status-text" id="statusText">Select all 3 variables to begin.</div>
+        </div>
       </div>
     </div>
     <!-- Results table below -->
@@ -875,6 +905,27 @@ p.sec-lead{color:var(--muted);font-size:15.5px;max-width:640px;margin-bottom:32p
       </div>
     </div>
   </div><!-- /tab2 -->
+
+  <!-- ══════════════════ TAB 3 ══════════════════ -->
+  <div id="tab3" class="tab-pane">
+    <div class="t3-layout">
+      <div class="t3-canvas-wrap">
+        <canvas id="t3canvas"></canvas>
+        <svg class="t3-label-overlay" id="t3Labels" xmlns="http://www.w3.org/2000/svg"></svg>
+      </div>
+      <div class="t3-panel">
+        <h3>🧬 How Methyl Tags Pass to Offspring</h3>
+        <p style="font-size:12px;color:var(--muted)">Step through the 5-stage journey — from tagging to inheritance. <span style="color:#e4b84a">点击"Next Step"逐步播放动画</span></p>
+        <div class="step-indicators" id="t3Dots"></div>
+        <hr style="border:none;border-top:1px solid var(--border)"/>
+        <div class="t3-step-title" id="t3Title">Ready to begin</div>
+        <div class="t3-step-body" id="t3Body">Press <strong style="color:var(--accent)">Next Step →</strong> to start the animation. Each click plays one stage of how methyl tags are inherited across generations.</div>
+        <button class="t3-next-btn" id="t3NextBtn" onclick="t3Next()">Next Step →</button>
+        <button class="t3-restart-btn" onclick="t3Restart()">↺ Start Over</button>
+      </div>
+    </div>
+  </div><!-- /tab3 -->
+
 </div><!-- /app -->
 
 <script>
@@ -914,6 +965,7 @@ function showTab(id,btn){
   document.getElementById(id).classList.add('active');
   btn.classList.add('active');
   if(id==='tab2' && !threeInitialized) initThree();
+  if(id==='tab3' && !t3Initialized) initTab3();
 }
 
 // ═══════════════════════════════════════════════
@@ -1039,6 +1091,28 @@ function initThree(){
   buildDNA();
   resizeThree();
   window.addEventListener('resize',resizeThree);
+
+  // Raycaster for methyl ball hover tooltip
+  const raycaster = new THREE.Raycaster();
+  const mouse = new THREE.Vector2();
+  const tooltip = document.getElementById('methyl-tooltip');
+  const canvasEl = document.getElementById('three-canvas');
+  canvasEl.addEventListener('mousemove', e => {
+    const rect = canvasEl.getBoundingClientRect();
+    mouse.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
+    mouse.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
+    raycaster.setFromCamera(mouse, camera);
+    const hits = raycaster.intersectObjects(methylSpheres, false);
+    if(hits.length > 0){
+      tooltip.style.display = 'block';
+      tooltip.style.left = (e.clientX - rect.left + 14) + 'px';
+      tooltip.style.top  = (e.clientY - rect.top  - 10) + 'px';
+    } else {
+      tooltip.style.display = 'none';
+    }
+  });
+  canvasEl.addEventListener('mouseleave', () => { tooltip.style.display = 'none'; });
+
   renderLoop();
 }
 
@@ -1197,10 +1271,12 @@ function addEnzyme(type){
 // ═══════════════════════════════════════════════
 //  ANIMATION PHASES
 // ═══════════════════════════════════════════════
-let act=0; // 0=idle,1=stim,2=dnmt,3=tet,4=result
+let act=0; // 0=idle,1=dnmt,2=tet,3=result
 let actTimer=0;
-const ACT_DURATIONS=[0,3,3,4,999];
+const ACT_DURATIONS=[0,5,5,999];
 let methylCount=0, surviveCount=0;
+// Track which methyl indices get erased
+let eraseIndices=[];
 
 function runExperiment(){
   if(!selEnvKey||!selFragKey) return;
@@ -1215,24 +1291,42 @@ function runExperiment(){
   act=1; actTimer=0;
   experimentRunning=true;
 
-  const methCount=selFragKey==='A'?8:selFragKey==='B'?5:3;
+  const methCount=selFragKey==='A'?18:selFragKey==='B'?12:8;
   methylCount=methCount;
   const survives=Math.round(methCount*(retention/100));
   surviveCount=Math.max(0,Math.min(survives,methCount));
 
-  addStimSpheres(selEnvKey);
+  // Pre-compute which spheres will be erased (start from ends, protect middle for frag A)
+  eraseIndices=[];
+  const eraseCount=methylCount-surviveCount;
+  if(selFragKey==='A'){
+    // Fragment A: protected middle — erase from both ends
+    const half=Math.ceil(eraseCount/2);
+    for(let i=0;i<half;i++) eraseIndices.push(i);
+    for(let i=0;i<eraseCount-half;i++) eraseIndices.push(methylCount-1-i);
+  } else {
+    // Fragment B/C: erase from beginning
+    for(let i=0;i<eraseCount;i++) eraseIndices.push(i);
+  }
+
+  // Spawn dense methyl tags immediately (hidden, will grow as DNMT passes)
+  addMethylTags(selFragKey,methylCount);
+  // Fragment A gets protective proteins
   addProtectiveProteins(selFragKey);
+  // Spawn DNMT enzyme
+  const dnmt=addEnzyme('DNMT');
+  dnmt.userData.active=true;
   setActUI(1);
 }
 
 function setActUI(a){
-  const labels=['','Act I — Maternal Stress Signal','Act II — Methyltransferase Activated',
-    'Act III — Erasure Attempt','Act IV — Result'];
+  const labels=['','Act I — DNMT Methyltransferase Writing Tags','Act II — TET Erasure Enzyme Removing Tags','Act III — Result'];
   const descs=['',
-    'Environmental signal arrives — hormones & metabolites flood the cell',
-    'DNMT enzyme 甲基转移酶 writes methyl tags onto DNA',
-    'TET erasure enzyme 擦除酶 attempts to remove tags',
-    'Experiment complete — retained tags shown'];
+    'DNMT enzyme 甲基转移酶 slides along DNA — watch methyl tags (CH₃) appear one by one',
+    'TET erasure enzyme 擦除酶 moves along DNA — some tags disappear, others survive',
+    pendingResult
+      ? `Complete — ${pendingResult.retention}% retained · ${surviveCount} of ${methylCount} tags survived erasure 存活/总数`
+      : 'Experiment complete'];
   document.getElementById('actLabel').textContent=labels[a];
   document.getElementById('actDesc').textContent=descs[a];
 }
@@ -1240,6 +1334,7 @@ function setActUI(a){
 function resetExperiment(){
   clearExperimentObjects();
   act=0; experimentRunning=false;
+  eraseIndices=[];
   document.getElementById('actOverlay').classList.remove('show');
   document.getElementById('resultPct').classList.remove('show');
   camera.position.set(0,0,14);
@@ -1251,108 +1346,90 @@ function renderLoop(){
   const dt=clock.getDelta();
   const elapsed=clock.getElapsedTime();
 
-  // Idle DNA rotation
   if(dnaGroup) dnaGroup.rotation.y += 0.004;
 
   if(act>0){
     actTimer+=dt;
-    // Scale-in new objects
-    [...methylSpheres,...proteinCubes].forEach(o=>{
-      if(o.userData.targetScale&&o.scale.x<o.userData.targetScale){
-        o.scale.setScalar(Math.min(o.scale.x+dt*2.5, o.userData.targetScale));
-      }
+    // Scale-in protective proteins
+    proteinCubes.forEach(o=>{
+      if(o.userData.targetScale&&o.scale.x<o.userData.targetScale)
+        o.scale.setScalar(Math.min(o.scale.x+dt*2.5,o.userData.targetScale));
     });
   }
 
-  // ACT 1: stim spheres orbit inward
+  // ACT 1: DNMT moves along DNA, methyl spheres grow progressively as enzyme passes
   if(act===1){
-    stimSpheres.forEach(s=>{
-      s.userData.orbAngle+=dt*s.userData.orbSpeed;
-      const targetR=s.userData.targetR;
-      s.userData.orbRadius=THREE.MathUtils.lerp(s.userData.orbRadius,targetR,dt*1.2);
-      const r=s.userData.orbRadius;
-      s.position.set(
-        Math.cos(s.userData.orbAngle)*r,
-        s.userData.orbY+Math.sin(elapsed*1.2+s.userData.phase)*0.3,
-        Math.sin(s.userData.orbAngle)*r
-      );
+    enzymes.filter(e=>e.userData.type==='DNMT').forEach(e=>{
+      e.userData.t=Math.min(e.userData.t+dt*0.18,1);
+      const t=e.userData.t;
+      const angle=t*HELIX_TURNS*Math.PI*2;
+      const y=(t-0.5)*HELIX_HEIGHT;
+      e.position.set(Math.cos(angle)*(HELIX_RADIUS+0.85),y,Math.sin(angle)*(HELIX_RADIUS+0.85));
+      e.rotation.y+=dt*2.5;
+      // Grow methyl spheres proportional to enzyme progress
+      methylSpheres.forEach((ms,i)=>{
+        const progress=i/methylCount;
+        if(t>progress-0.05){
+          ms.scale.setScalar(Math.min(ms.scale.x+dt*3, ms.userData.targetScale||1));
+        }
+      });
     });
     if(actTimer>ACT_DURATIONS[1]){
       act=2; actTimer=0;
       setActUI(2);
-      const enz=addEnzyme('DNMT');
-      enz.userData.active=true;
-      addMethylTags(selFragKey,methylCount);
+      const tet=addEnzyme('TET');
+      tet.userData.active=true;
+      tet.userData.t=0;
     }
   }
 
-  // ACT 2: DNMT moves along DNA, methyl spheres grow
+  // ACT 2: TET moves along, erases marked methyls one by one as it passes them
   if(act===2){
-    enzymes.filter(e=>e.userData.type==='DNMT').forEach(e=>{
-      e.userData.t=Math.min(e.userData.t+dt*0.28,1);
+    enzymes.filter(e=>e.userData.type==='TET').forEach(e=>{
+      e.userData.t=Math.min(e.userData.t+dt*0.18,1);
       const t=e.userData.t;
-      const angle=t*HELIX_TURNS*Math.PI*2;
+      const angle=t*HELIX_TURNS*Math.PI*2+0.3;
       const y=(t-0.5)*HELIX_HEIGHT;
-      e.position.set(Math.cos(angle)*(HELIX_RADIUS+0.8),y,Math.sin(angle)*(HELIX_RADIUS+0.8));
-      e.rotation.y+=dt*2;
+      e.position.set(Math.cos(angle)*(HELIX_RADIUS+0.85),y,Math.sin(angle)*(HELIX_RADIUS+0.85));
+      e.rotation.y-=dt*2.5;
+      // Erase spheres whose index is in eraseIndices, when enzyme has passed them
+      eraseIndices.forEach(idx=>{
+        if(!methylSpheres[idx]) return;
+        const progress=idx/methylCount;
+        // For frag A end-erasure: both ends
+        const fromEnd=(methylCount-1-idx)/methylCount;
+        const passed = selFragKey==='A'
+          ? (t>progress+0.05 || t>fromEnd+0.05)
+          : t>progress+0.05;
+        if(passed && methylSpheres[idx].scale.x>0){
+          methylSpheres[idx].scale.setScalar(Math.max(methylSpheres[idx].scale.x-dt*1.8,0));
+          if(methylSpheres[idx].material)
+            methylSpheres[idx].material.emissiveIntensity=Math.max(0,methylSpheres[idx].scale.x*0.3);
+        }
+      });
+      // Protective proteins glow when TET approaches frag A
+      if(selFragKey==='A'){
+        proteinCubes.forEach(pc=>{
+          pc.rotation.y+=dt*1.2;
+          pc.material.emissiveIntensity=0.4+0.3*Math.sin(elapsed*4);
+        });
+      }
     });
     if(actTimer>ACT_DURATIONS[2]){
       act=3; actTimer=0;
       setActUI(3);
-      const enz=addEnzyme('TET');
-      enz.userData.active=true;
-    }
-  }
-
-  // ACT 3: TET enzyme moves along, erases some methyls
-  if(act===3){
-    enzymes.filter(e=>e.userData.type==='TET').forEach(e=>{
-      e.userData.t=Math.min(e.userData.t+dt*0.22,1);
-      const t=e.userData.t;
-      const angle=t*HELIX_TURNS*Math.PI*2+Math.PI*0.3;
-      const y=(t-0.5)*HELIX_HEIGHT;
-      e.position.set(Math.cos(angle)*(HELIX_RADIUS+0.8),y,Math.sin(angle)*(HELIX_RADIUS+0.8));
-      e.rotation.y-=dt*2;
-      // Erase methyls beyond surviveCount
-      const eraseCount=methylCount-surviveCount;
-      methylSpheres.slice(0,eraseCount).forEach((ms,i)=>{
-        if(ms.scale.x>0) ms.scale.setScalar(Math.max(ms.scale.x-dt*0.5,0));
-      });
-    });
-    // Protective proteins block TET for frag A
-    if(selFragKey==='A'){
-      proteinCubes.forEach(pc=>{
-        pc.rotation.y+=dt*0.8;
-        const glow=0.4+0.2*Math.sin(elapsed*3);
-        pc.material.emissiveIntensity=glow;
-      });
-    }
-    if(actTimer>ACT_DURATIONS[3]){
-      act=4; actTimer=0;
-      setActUI(4);
       showResult();
     }
   }
 
-  // ACT 4: surviving methyls pulse
-  if(act===4){
-    methylSpheres.slice(methylCount-surviveCount).forEach(ms=>{
-      const pulse=0.9+0.15*Math.sin(elapsed*3+ms.position.y);
-      ms.scale.setScalar(pulse);
-      ms.material.emissiveIntensity=0.2+0.2*Math.sin(elapsed*3+ms.position.y);
-    });
-  }
-
-  // Stim spheres continue orbiting in all acts
-  if(act>1){
-    stimSpheres.forEach(s=>{
-      s.userData.orbAngle+=dt*0.15;
-      const r=s.userData.targetR;
-      s.position.set(
-        Math.cos(s.userData.orbAngle)*r,
-        s.userData.orbY+Math.sin(elapsed*0.8+s.userData.phase)*0.2,
-        Math.sin(s.userData.orbAngle)*r
-      );
+  // ACT 3: surviving methyls pulse with glow
+  if(act===3){
+    methylSpheres.forEach((ms,i)=>{
+      if(!eraseIndices.includes(i) && ms.scale.x>0){
+        const pulse=0.9+0.2*Math.sin(elapsed*2.5+ms.position.y);
+        ms.scale.setScalar(pulse);
+        if(ms.material) ms.material.emissiveIntensity=0.25+0.3*Math.sin(elapsed*2.5+ms.position.y);
+      }
     });
   }
 
@@ -1410,6 +1487,421 @@ function addTableRow(r){
     <td><span class="risk-badge ${riskClass}">${riskLabel}</span></td>
     <td style="font-size:12px;color:var(--muted);max-width:240px">${mechNote}</td>`;
   tbody.appendChild(tr);
+}
+
+// ═══════════════════════════════════════════════
+//  TAB 3 — INHERITANCE ANIMATION
+// ═══════════════════════════════════════════════
+let t3Initialized=false, t3Scene, t3Camera, t3Renderer, t3Clock;
+let t3AnimId, t3Step=0, t3Animating=false;
+let t3DNA=null, t3Strand1=[], t3Strand2=[], t3Methyls=[], t3Enzyme=null;
+let t3ProtRings=[], t3Clones=[];
+const T3_STEPS=5;
+
+const T3_CONTENT=[
+  {
+    title:'Step 1 of 5 — Methyl Tags Are Written onto a Gene',
+    body:`Under extreme environmental stress, <strong>DNMT3a</strong><span style='color:#e4b84a;font-size:12px;margin-left:4px'>（从头甲基转移酶）</span> drifts along the DNA and attaches <strong>methyl tags (CH₃)</strong><span style='color:#e4b84a;font-size:12px;margin-left:4px'>（甲基标签）</span> to specific CpG sites on a gene's promoter region<span style='color:#e4b84a;font-size:12px;margin-left:4px'>（启动子区域）</span>.<br><br>
+    The tag doesn't change the DNA sequence at all — it acts like a sticky note that says <strong>"DO NOT READ"</strong>, silencing the gene without touching a single base letter.`
+  },
+  {
+    title:'Step 2 of 5 — DNA Replicates: Semi-Methylation',
+    body:`When the cell divides, DNA replication<span style='color:#e4b84a;font-size:12px;margin-left:4px'>（DNA复制）</span> splits the double helix into two strands. The new strand starts <strong>unmethylated</strong><span style='color:#e4b84a;font-size:12px;margin-left:4px'>（未甲基化）</span>.<br><br>
+    This creates a <strong>hemi-methylated</strong><span style='color:#e4b84a;font-size:12px;margin-left:4px'>（半甲基化）</span> state — one strand has the tags, the other doesn't. This is a vulnerable moment: if nothing acts now, the memory of the tag is lost.`
+  },
+  {
+    title:'Step 3 of 5 — DNMT1 Copies the Tags',
+    body:`<strong>DNMT1</strong><span style='color:#e4b84a;font-size:12px;margin-left:4px'>（维持型甲基转移酶）</span> is the "maintenance" enzyme. It scans newly replicated DNA, finds the half-tagged spots, and immediately copies the tag onto the new strand.<br><br>
+    This is how methylation patterns are <strong>copied every time a cell divides</strong><span style='color:#e4b84a;font-size:12px;margin-left:4px'>（每次细胞分裂时被复制）</span> — keeping the gene silenced through hundreds of generations of body cells.`
+  },
+  {
+    title:'Step 4 of 5 — Fertilization: The Erasure Attempt',
+    body:`When sperm meets egg, the embryo launches a massive <strong>epigenetic reprogramming</strong><span style='color:#e4b84a;font-size:12px;margin-left:4px'>（表观遗传重编程）</span> — TET enzymes<span style='color:#e4b84a;font-size:12px;margin-left:4px'>（TET酶，擦除酶）</span> flood in and try to erase almost all methyl tags.<br><br>
+    <strong>But not everything gets erased.</strong> Regions protected by <strong>MBD proteins</strong><span style='color:#e4b84a;font-size:12px;margin-left:4px'>（甲基结合蛋白）</span> or dense <strong>CpG islands</strong><span style='color:#e4b84a;font-size:12px;margin-left:4px'>（CpG岛）</span> can resist — the TET enzyme literally bounces off these protected zones.`
+  },
+  {
+    title:'Step 5 of 5 — Inheritance: The Tag Lives On',
+    body:`The surviving methyl tags are now part of the new organism's <strong>epigenome</strong><span style='color:#e4b84a;font-size:12px;margin-left:4px'>（表观基因组）</span>. As the embryo grows, DNMT1 copies those remaining tags to every new cell.<br><br>
+    The gene that was silenced in the mother by famine or stress <strong>remains silenced in the child — and the grandchild</strong>, even though they never experienced that environment. This is <strong>epigenetic transgenerational inheritance</strong><span style='color:#e4b84a;font-size:12px;margin-left:4px'>（表观遗传跨代遗传）</span>.`
+  }
+];
+
+function initTab3(){
+  t3Initialized=true;
+  const canvas=document.getElementById('t3canvas');
+  const wrap=canvas.parentElement;
+  const W=wrap.clientWidth, H=wrap.clientHeight||600;
+
+  t3Scene=new THREE.Scene();
+  t3Scene.background=new THREE.Color(0x0d1228);
+  t3Camera=new THREE.PerspectiveCamera(50,W/H,0.1,100);
+  t3Camera.position.set(0,0,10);
+  t3Renderer=new THREE.WebGLRenderer({canvas,antialias:true});
+  t3Renderer.setPixelRatio(window.devicePixelRatio);
+  t3Renderer.setSize(W,H,false);
+  t3Clock=new THREE.Clock();
+
+  const amb=new THREE.AmbientLight(0x334466,1.3);
+  t3Scene.add(amb);
+  const dir=new THREE.DirectionalLight(0x2dd4bf,1.3);
+  dir.position.set(4,6,4); t3Scene.add(dir);
+  const dir2=new THREE.DirectionalLight(0x818cf8,0.7);
+  dir2.position.set(-4,-2,2); t3Scene.add(dir2);
+
+  window.addEventListener('resize',resizeT3);
+  t3BuildDNA();
+
+  // Build step dots
+  const dotsEl=document.getElementById('t3Dots');
+  dotsEl.innerHTML='';
+  for(let i=1;i<=T3_STEPS;i++){
+    const d=document.createElement('div');
+    d.className='step-dot';
+    d.textContent=i;
+    d.onclick=(()=>{const s=i;return ()=>t3GoToStep(s);})();
+    dotsEl.appendChild(d);
+  }
+
+  t3RenderLoop();
+  // auto-start step 1
+  setTimeout(()=>t3GoToStep(1),400);
+}
+
+function resizeT3(){
+  if(!t3Renderer) return;
+  const wrap=document.getElementById('t3canvas').parentElement;
+  const W=wrap.clientWidth, H=wrap.clientHeight||600;
+  t3Renderer.setSize(W,H,false);
+  t3Camera.aspect=W/H;
+  t3Camera.updateProjectionMatrix();
+}
+
+const T3_HR=1.3, T3_TURNS=2.5, T3_H=6, T3_PTS=80;
+
+function t3BuildDNA(){
+  t3DNA=new THREE.Group();
+  t3Scene.add(t3DNA);
+  const m1=new THREE.MeshPhongMaterial({color:0x2dd4bf,shininess:80});
+  const m2=new THREE.MeshPhongMaterial({color:0x818cf8,shininess:80});
+  const mb=new THREE.MeshPhongMaterial({color:0x2d3a5a,shininess:20});
+  const pts1=[],pts2=[];
+  for(let i=0;i<=T3_PTS;i++){
+    const t=i/T3_PTS, a=t*T3_TURNS*Math.PI*2, y=(t-0.5)*T3_H;
+    pts1.push(new THREE.Vector3(Math.cos(a)*T3_HR,y,Math.sin(a)*T3_HR));
+    pts2.push(new THREE.Vector3(Math.cos(a+Math.PI)*T3_HR,y,Math.sin(a+Math.PI)*T3_HR));
+  }
+  const c1=new THREE.CatmullRomCurve3(pts1), c2=new THREE.CatmullRomCurve3(pts2);
+  t3DNA.add(new THREE.Mesh(new THREE.TubeGeometry(c1,80,0.10,8,false),m1));
+  t3DNA.add(new THREE.Mesh(new THREE.TubeGeometry(c2,80,0.10,8,false),m2));
+  for(let i=0;i<14;i++){
+    const t=(i+0.5)/15, a=t*T3_TURNS*Math.PI*2, y=(t-0.5)*T3_H;
+    const p1=new THREE.Vector3(Math.cos(a)*T3_HR,y,Math.sin(a)*T3_HR);
+    const p2=new THREE.Vector3(Math.cos(a+Math.PI)*T3_HR,y,Math.sin(a+Math.PI)*T3_HR);
+    const mid=new THREE.Vector3().lerpVectors(p1,p2,0.5);
+    const len=p1.distanceTo(p2);
+    const rg=new THREE.CylinderGeometry(0.035,0.035,len,6);
+    const r=new THREE.Mesh(rg,mb); r.position.copy(mid);
+    r.lookAt(p2); r.rotateX(Math.PI/2); t3DNA.add(r);
+  }
+}
+
+function t3ClearObjects(){
+  [...t3Methyls,...t3ProtRings,...t3Clones].forEach(o=>{
+    t3Scene.remove(o);
+    if(o.geometry) o.geometry.dispose();
+  });
+  if(t3Enzyme){t3Scene.remove(t3Enzyme);t3Enzyme=null;}
+  t3Methyls=[];t3ProtRings=[];t3Clones=[];
+  // Always restore the original DNA helix when switching steps
+  if(t3DNA){
+    t3DNA.visible=true;
+    t3DNA.userData.freezeRotation=false;
+  }
+}
+
+function t3SpawnMethyls(count,color){
+  const geo=new THREE.SphereGeometry(0.19,10,10);
+  const mat=new THREE.MeshPhongMaterial({color,emissive:color,emissiveIntensity:.25,shininess:90});
+  for(let i=0;i<count;i++){
+    const t=(i+0.5)/(count+1);
+    const a=t*T3_TURNS*Math.PI*2, y=(t-0.5)*T3_H;
+    const offset=new THREE.Vector3(Math.cos(a),0.2,Math.sin(a)).normalize().multiplyScalar(0.5);
+    const m=new THREE.Mesh(geo,mat.clone());
+    m.position.set(Math.cos(a)*T3_HR+offset.x,y+offset.y,Math.sin(a)*T3_HR+offset.z);
+    m.scale.setScalar(0);
+    m.userData={targetScale:1,active:true,initIdx:i};
+    t3Methyls.push(m);
+    t3Scene.add(m);
+  }
+}
+
+function t3SpawnEnzyme(type){
+  let geo,col;
+  if(type==='DNMT3a'){geo=new THREE.IcosahedronGeometry(0.42,0);col=0xfbbf24;}
+  else if(type==='DNMT1'){geo=new THREE.BoxGeometry(0.55,0.55,0.55);col=0x818cf8;}
+  else{geo=new THREE.OctahedronGeometry(0.42,0);col=0xf87171;}
+  const mat=new THREE.MeshPhongMaterial({color:col,emissive:col,emissiveIntensity:.2,shininess:120});
+  t3Enzyme=new THREE.Mesh(geo,mat);
+  t3Enzyme.position.set(-4,3,0);
+  t3Enzyme.userData={t:0,type};
+  t3Scene.add(t3Enzyme);
+}
+
+function t3UpdateLabels(step){
+  const svg=document.getElementById('t3Labels');
+  svg.innerHTML='';
+  const W=svg.parentElement.clientWidth, H=svg.parentElement.clientHeight||600;
+  svg.setAttribute('viewBox',`0 0 ${W} ${H}`);
+
+  const labels={
+    1:[
+      {x:W*.55,y:H*.28,text:'🟠 CH₃ = Methyl Tag 甲基标签',col:'#f97316'},
+      {x:W*.3,y:H*.55,text:'🔷 DNMT3a = Writer Enzyme 甲基转移酶',col:'#fbbf24'}
+    ],
+    2:[
+      {x:W*.55,y:H*.32,text:'✅ Tagged strand — tags intact',col:'#f97316'},
+      {x:W*.55,y:H*.62,text:'⚪ New strand — unmethylated 未甲基化',col:'#7889b0'},
+      {x:W*.3,y:H*.82,text:'⬆ Hemi-methylated state 半甲基化',col:'#fbbf24'}
+    ],
+    3:[
+      {x:W*.3,y:H*.55,text:'🟦 DNMT1 = Maintenance Copier 维持型甲基转移酶',col:'#818cf8'},
+      {x:W*.55,y:H*.35,text:'🟠 Tags copied to new strand 标签被复制',col:'#f97316'}
+    ],
+    4:[
+      {x:W*.2,y:H*.4,text:'🔴 TET = Eraser Enzyme 擦除酶',col:'#f87171'},
+      {x:W*.55,y:H*.35,text:'🟡 Protected Region — blocks TET 保护区域',col:'#fbbf24'}
+    ],
+    5:[
+      {x:W*.55,y:H*.3,text:'✅ Tag Inherited 标签遗传下去',col:'#4ade80'},
+      {x:W*.55,y:H*.6,text:'🔇 Gene Silenced in offspring 基因沉默',col:'#7889b0'}
+    ]
+  };
+  (labels[step]||[]).forEach(lb=>{
+    const txt=document.createElementNS('http://www.w3.org/2000/svg','text');
+    txt.setAttribute('x',lb.x);txt.setAttribute('y',lb.y);
+    txt.setAttribute('fill',lb.col);txt.setAttribute('font-size','13');
+    txt.setAttribute('font-family','Segoe UI,sans-serif');
+    txt.setAttribute('font-weight','600');
+    txt.textContent=lb.text;
+    svg.appendChild(txt);
+  });
+}
+
+function t3GoToStep(s){
+  if(s<1||s>T3_STEPS) return;
+  t3Step=s;
+  t3ClearObjects();
+
+  // Camera reset
+  t3Camera.position.set(0,0,10);
+  t3Camera.lookAt(0,0,0);
+  if(t3DNA){t3DNA.rotation.set(0,0,0);t3DNA.position.set(0,0,0);}
+
+  // Update UI
+  document.getElementById('t3Title').innerHTML=T3_CONTENT[s-1].title;
+  document.getElementById('t3Body').innerHTML=T3_CONTENT[s-1].body;
+  document.querySelectorAll('.step-dot').forEach((d,i)=>{
+    d.classList.remove('active','done');
+    if(i+1<s) d.classList.add('done');
+    else if(i+1===s) d.classList.add('active');
+  });
+  document.getElementById('t3NextBtn').disabled=(s===T3_STEPS);
+  document.getElementById('t3NextBtn').textContent=s===T3_STEPS?'Complete ✓':'Next Step →';
+
+  t3UpdateLabels(s);
+
+  // Step-specific scene setup
+  if(s===1){
+    // Spawn methyl tags + DNMT3a enzyme
+    t3SpawnMethyls(6,0xf97316);
+    t3SpawnEnzyme('DNMT3a');
+    t3Enzyme.userData.t=0;
+  }
+  else if(s===2){
+    // STEP 2: Visually split the double helix into two separate strands
+    // Build two independent strand groups that drift apart
+
+    // First, stop t3DNA rotation during split animation
+    if(t3DNA) t3DNA.userData.freezeRotation = true;
+
+    // Build strand A (original — has methyl tags) — shift right
+    const sA = new THREE.Group();
+    const sB = new THREE.Group();
+    const m1=new THREE.MeshPhongMaterial({color:0x2dd4bf,shininess:80});
+    const m2=new THREE.MeshPhongMaterial({color:0x818cf8,shininess:80});
+    const mb=new THREE.MeshPhongMaterial({color:0x2d3a5a,shininess:20});
+    const ptsA=[], ptsB=[];
+    for(let i=0;i<=T3_PTS;i++){
+      const t=i/T3_PTS, a=t*T3_TURNS*Math.PI*2, y=(t-0.5)*T3_H;
+      ptsA.push(new THREE.Vector3(Math.cos(a)*T3_HR, y, Math.sin(a)*T3_HR));
+      ptsB.push(new THREE.Vector3(Math.cos(a+Math.PI)*T3_HR, y, Math.sin(a+Math.PI)*T3_HR));
+    }
+    const cA=new THREE.CatmullRomCurve3(ptsA), cB=new THREE.CatmullRomCurve3(ptsB);
+    sA.add(new THREE.Mesh(new THREE.TubeGeometry(cA,80,0.10,8,false),m1.clone()));
+    sB.add(new THREE.Mesh(new THREE.TubeGeometry(cB,80,0.10,8,false),m2.clone()));
+
+    // Methyl tags on strand A (orange = tagged)
+    const methGeo=new THREE.SphereGeometry(0.19,10,10);
+    const methMat=new THREE.MeshPhongMaterial({color:0xf97316,emissive:0xf97316,emissiveIntensity:.25});
+    for(let i=0;i<6;i++){
+      const t=(i+0.5)/7, a=t*T3_TURNS*Math.PI*2, y=(t-0.5)*T3_H;
+      const offset=new THREE.Vector3(Math.cos(a),0.25,Math.sin(a)).normalize().multiplyScalar(0.5);
+      const m=new THREE.Mesh(methGeo,methMat.clone());
+      m.position.set(Math.cos(a)*T3_HR+offset.x, y+offset.y, Math.sin(a)*T3_HR+offset.z);
+      sA.add(m);
+    }
+
+    // Empty placeholders on strand B (gray wireframe = unmethylated)
+    const emptyGeo=new THREE.SphereGeometry(0.17,8,8);
+    const emptyMat=new THREE.MeshPhongMaterial({color:0x556677,transparent:true,opacity:0.55,wireframe:true});
+    for(let i=0;i<6;i++){
+      const t=(i+0.5)/7, a=t*T3_TURNS*Math.PI*2+Math.PI, y=(t-0.5)*T3_H;
+      const offset=new THREE.Vector3(Math.cos(a),0.25,Math.sin(a)).normalize().multiplyScalar(0.5);
+      const m=new THREE.Mesh(emptyGeo,emptyMat.clone());
+      m.position.set(Math.cos(a)*T3_HR+offset.x, y+offset.y, Math.sin(a)*T3_HR+offset.z);
+      sB.add(m);
+    }
+
+    // Start both strands at center, animate them apart
+    sA.position.x = 0;
+    sB.position.x = 0;
+    sA.userData = { targetX: 2.6, speed: 0.9 };
+    sB.userData = { targetX: -2.6, speed: 0.9 };
+
+    // Hide the original combined DNA group
+    if(t3DNA) t3DNA.visible = false;
+
+    // Store as clones so t3ClearObjects() can remove them
+    t3Clones.push(sA, sB);
+    t3Scene.add(sA);
+    t3Scene.add(sB);
+  }
+  else if(s===3){
+    // Both strands fully methylated, DNMT1 enzyme slides along
+    t3SpawnMethyls(12,0xf97316);
+    t3SpawnEnzyme('DNMT1');
+    t3Enzyme.userData.t=0;
+  }
+  else if(s===4){
+    // Show methyls, then TET enzyme + golden protection rings
+    t3SpawnMethyls(6,0xf97316);
+    t3SpawnEnzyme('TET');
+    t3Enzyme.userData.t=0;
+    // Golden protection rings around middle 2 methyls
+    const ringGeo=new THREE.TorusGeometry(0.3,0.05,8,20);
+    const ringMat=new THREE.MeshPhongMaterial({color:0xfbbf24,emissive:0x443300,emissiveIntensity:.4});
+    [2,3].forEach(idx=>{
+      if(t3Methyls[idx]){
+        const ring=new THREE.Mesh(ringGeo,ringMat.clone());
+        ring.position.copy(t3Methyls[idx].position);
+        ring.rotation.x=Math.PI/2;
+        t3ProtRings.push(ring);
+        t3Scene.add(ring);
+      }
+    });
+    // Erase 4 of 6 methyls (keep protected 2)
+    setTimeout(()=>{
+      [0,1,4,5].forEach(idx=>{
+        if(t3Methyls[idx]) t3Methyls[idx].userData.erasing=true;
+      });
+    },2000);
+  }
+  else if(s===5){
+    // Show 2 surviving glowing methyls + clone DNA strands below
+    t3SpawnMethyls(2,0x4ade80);
+    t3Methyls.forEach(m=>{m.scale.setScalar(1);m.userData.glowing=true;});
+    // Clone DNA group twice below
+    for(let c=1;c<=2;c++){
+      const clone=t3DNA.clone();
+      clone.position.y=-(c*7);
+      clone.scale.setScalar(0.85-c*0.05);
+      const cMethylGeo=new THREE.SphereGeometry(0.19,10,10);
+      const cMat=new THREE.MeshPhongMaterial({color:0x4ade80,emissive:0x004422,emissiveIntensity:.3});
+      for(let i=0;i<2;i++){
+        const t=(i+0.5)/3, a=t*T3_TURNS*Math.PI*2, y=(t-0.5)*T3_H;
+        const offset=new THREE.Vector3(Math.cos(a),0.2,Math.sin(a)).normalize().multiplyScalar(0.5);
+        const cm=new THREE.Mesh(cMethylGeo,cMat.clone());
+        cm.position.set(Math.cos(a)*T3_HR+offset.x,y+offset.y,Math.sin(a)*T3_HR+offset.z);
+        clone.add(cm);
+      }
+      t3Clones.push(clone);
+      t3Scene.add(clone);
+    }
+    // Pull camera back to see all 3 DNA strands
+    t3Camera.position.set(0,4,18);
+    t3Camera.lookAt(0,-4,0);
+  }
+}
+
+function t3Next(){
+  if(t3Step<T3_STEPS) t3GoToStep(t3Step+1);
+}
+function t3Restart(){
+  t3Step=0;
+  t3ClearObjects();
+  document.getElementById('t3Title').textContent='Ready to begin';
+  document.getElementById('t3Body').innerHTML='Press <strong style="color:var(--accent)">Next Step →</strong> to start the animation.';
+  document.querySelectorAll('.step-dot').forEach(d=>d.classList.remove('active','done'));
+  document.getElementById('t3NextBtn').disabled=false;
+  document.getElementById('t3NextBtn').textContent='Next Step →';
+  document.getElementById('t3Labels').innerHTML='';
+  if(t3DNA){t3DNA.rotation.set(0,0,0);t3DNA.position.set(0,0,0);}
+  t3Camera.position.set(0,0,10);
+  t3Camera.lookAt(0,0,0);
+}
+
+function t3RenderLoop(){
+  t3AnimId=requestAnimationFrame(t3RenderLoop);
+  const dt=t3Clock.getDelta(), elapsed=t3Clock.getElapsedTime();
+  if(t3DNA) t3DNA.rotation.y+=0.004;
+
+  // Scale-in methyls
+  t3Methyls.forEach(m=>{
+    if(m.userData.targetScale&&m.scale.x<m.userData.targetScale)
+      m.scale.setScalar(Math.min(m.scale.x+dt*3,m.userData.targetScale));
+    if(m.userData.erasing)
+      m.scale.setScalar(Math.max(m.scale.x-dt*0.8,0));
+    if(m.userData.glowing){
+      const p=0.85+0.25*Math.sin(elapsed*3+m.position.y);
+      m.scale.setScalar(p);
+      if(m.material) m.material.emissiveIntensity=0.2+0.3*Math.sin(elapsed*3);
+    }
+  });
+
+  // Enzyme movement
+  if(t3Enzyme){
+    t3Enzyme.userData.t=Math.min(t3Enzyme.userData.t+dt*0.22,1);
+    const et=t3Enzyme.userData.t;
+    const ea=et*T3_TURNS*Math.PI*2, ey=(et-0.5)*T3_H;
+    t3Enzyme.position.set(Math.cos(ea)*(T3_HR+0.9),ey,Math.sin(ea)*(T3_HR+0.9));
+    t3Enzyme.rotation.y+=dt*2.5;
+    // For TET step 4: bounce off protected rings
+    if(t3Enzyme.userData.type==='TET' && t3ProtRings.length){
+      t3ProtRings.forEach(r=>{r.rotation.z+=dt*1.5;r.material.emissiveIntensity=0.3+0.2*Math.sin(elapsed*4);});
+    }
+  }
+
+  // Clone strands gentle float
+  t3Clones.forEach((c,i)=>{
+    // Step 2 split strands: animate horizontally apart
+    if(c.userData && c.userData.targetX !== undefined){
+      const tx = c.userData.targetX;
+      const spd = c.userData.speed || 0.9;
+      if(Math.abs(c.position.x - tx) > 0.01){
+        c.position.x += (tx - c.position.x) * spd * dt * 2.5;
+      }
+      c.rotation.y += 0.004;
+    } else {
+      // Step 5 clone strands: float gently
+      c.rotation.y += 0.003;
+      c.position.y = -((i-1)*7) + Math.sin(elapsed*0.5+i)*0.15;
+      if(c.scale.x < (0.85 - (i-2)*0.05)){
+        c.scale.setScalar(Math.min(c.scale.x + dt*0.5, 0.85 - (i-2)*0.05));
+      }
+    }
+  });
+
+  t3Renderer.render(t3Scene,t3Camera);
 }
 </script>
 </body>
